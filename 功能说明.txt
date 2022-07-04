@@ -1,0 +1,63 @@
+2022-0630 根据原理图1.0记录
+
+0. PD0~PD4-空
+1. PD5 - LSPK_CRL    SGM3157YC6/TR开关控制   高电平有效  PIN4-1接通
+2. PD6 - MIC_CRL     SGM3157YC6/TR开关控制   0选择P_IN  1选择H_IN
+3. PD7 - WX_EN      SGM6332YPS8G/TR  使能控制（输出VX_1V1）， 高电平使能，低电平禁止   
+4. PD8 -SYS_RESET  连接电阻空，没有对外控制
+5. PD9 - PANNEL_PTT  连接电阻空，没有对外控制
+6. PD10-空
+7. PD11- 3V3_A0
+8. PD12，PD13 - 空
+9.PD14- 3V3_D0
+10. PD15-空
+
+11.PE0 - 空
+12.PE1 - LVDS_RESETn  低电平有效，用于复位
+13.PE2 - 3V3_A1
+14.PE3 - 3V3_A2
+15.PE4 - 3V3_A3
+16.PE5 - 3V3_A4
+17.PE6 - 3V3_A5
+18.PE7 - 空
+19.PE8 - KEYBOARD_CS
+20.PE9-PWM_LED （TIM0-CH0）
+21.PE10~PE14 空
+22.PE15- CTRL_LCD 高电平有效  AVDD_7IN 开始输出
+
+
+23.PC0 - OE1  电路输出控制，rk3399调试串口，rk3399与gd32的串口，rk3399与液晶通信串口，SAI8159iic4接口
+24.PC1 - OE2  电路输出控制，i2s，i2s0，CB_RESETn，WDT_OUT
+25.PC2 - OE3  电路输出控制，iic3接口，iic1接口，GPO6，PCIE_WAKEn，LED_PWM_7IN
+26.PC3 - OE4 电路输出控制，PTT，GPI5，MIC_DET，PTT1，CODEC_GPI2，GPO4
+27.PC4 - 9211_INT 连接电阻空，无控制
+28.PC5~PC15 - 空
+
+
+
+29.PA0~PA1 - 空
+30.PA2~PA3 -  与rk3399的通信串口
+31.PA4 - WDO  (U11看门狗芯片没有焊接)
+32.PA5 - WDI   (U11看门狗芯片没有焊接)
+33.PA6 - RK_RST   (U11看门狗芯片没有焊接)
+34.PA7
+35.PA8 - 空
+36.PA9~PA10 -  调试通信串口
+37.PA11~PA12 - 空
+38.PA13~PA14 - 下载接口
+39.PA15 - 空
+
+
+40.PB0~PB1 - 空
+41.PB2 - BOOT1
+42.PB3 - 空
+44.PB4 - 工作指示灯
+45.PB5 - 空
+46.PB6~PB7 - iic-lvds
+47.PB8~PB9 - iic-key  （7位地址0x20）
+48.PB10~PB11 - 空
+49.PB12  PCA9535 中断引脚，低电平有效？
+50.PB13 - 空
+51.PB14 - lcd-pwm_7in （tim0-ch1_ON）
+52.PB15 - lcd-pwm （tim0-ch2_ON）
+
