@@ -73,9 +73,13 @@ void matrix_keys_init(void)
 	//2.3 nvic允许中断
 	//中断控制器使能，使用的是外部中断12
 	nvic_irq_enable(EXTI10_15_IRQn,  1, 2);   //允许中断，并设置优先级
+
+	//初始化之后读取一次
+	matrix_keys_row_scan();	
+
 #endif		
 	
-		
+	
 }
 
 

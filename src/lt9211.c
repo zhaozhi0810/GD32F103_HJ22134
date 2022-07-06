@@ -21,14 +21,22 @@ enum VideoFormat Video_Format;
 #define PCR_M_VALUE 0x17 
 
 //Video_pattern
-#define VIDEO_PATTERN 0           
+#define VIDEO_PATTERN 0          
 
 uint8_t     I2CADR = 0x5A;   //iic地址（8位地址）
-
+//#define LT9211_OUTPUT_PATTERN 1
    				 						//hfp, hs, hbp,hact,htotal,vfp, vs, vbp, vact,vtotal,pixclk Khz
 
-static struct video_timing video_1920x1080_60Hz   ={88, 44, 148,1920,  2200,  4,  5,  36, 1080, 1125, 148500};
-static struct video_timing video_1280x720_60Hz   ={ 52, 8, 52,1280,  1392, 8,  3,  5, 720, 736,  62200};
+//static struct video_timing video_1920x1080_60Hz   ={88, 44, 148,1920,  2200,  4,  5,  36, 1080, 1125, 148500};
+//static struct video_timing video_1280x720_60Hz   ={ 52, 8, 52,1280,  1392, 8,  3,  5, 720, 736,  62200};
+//static struct video_timing video_1024x600_60Hz   ={ 144, 48, 96,1024,  1312, 10,  2,  9, 600, 621,  48836};
+//static struct video_timing video_1024x600_60Hz   ={ 160, 20, 120,1024,  1344, 12,  3,  20, 600, 635,  55000};
+//static struct video_timing video_1024x600_60Hz   ={ 144, 48, 96,1024,  1312, 11,  3,  10, 600, 624,  49000};
+//static struct video_timing video_1024x600_60Hz   ={ 120, 40, 120,1024,  1304, 14,  4,  14, 600, 632,  49500};
+//static struct video_timing video_1024x600_60Hz   ={ 144, 40, 104,1024,  1312, 18,  1,  3, 600, 622,  48960};
+//static struct video_timing video_1024x600_60Hz   ={ 100, 80, 108,1024,  1312, 7,  3,  11, 600, 621,  48885};
+//static struct video_timing video_1024x600_60Hz   ={ 128, 32, 128,600,  888, 16,  4,  16, 1024, 1060,  56480};
+static struct video_timing video_1024x600_60Hz   ={ 128, 32, 128,1024,  1312, 16,  4,  16, 600, 636,  56480};
 
 
 
@@ -141,11 +149,8 @@ void LT9211_SystemInt(void)
 
 void LT9211_MipiRxPhy(void)
 {
-
 	HDMI_WriteI2C_Byte(0xff,0xd0);
 	HDMI_WriteI2C_Byte(0x00,MIPI_LANE_CNT);	// 0: 4 Lane / 1: 1 Lane / 2 : 2 Lane / 3: 3 Lane
-
-
 	/* Mipi rx phy */
 	HDMI_WriteI2C_Byte(0xff,0x82);
 	HDMI_WriteI2C_Byte(0x02,0x44); //port A mipi rx enable
@@ -256,18 +261,28 @@ void LT9211_TimingSet(void)
 
 	//Timer0_Delay1ms(100);
 	Delay1ms(100);
-	if ((hact == video_1920x1080_60Hz.hact ) &&( vact == video_1920x1080_60Hz.vact ))
+//	if (1)//(hact == video_1920x1080_60Hz.hact ) &&( vact == video_1920x1080_60Hz.vact ))
+//	{
+//		 VideoFormat = video_1920x1080_60Hz_vic;
+//		 LT9211_SetVideoTiming(&video_1920x1080_60Hz);
+//		printf("1920x1080_60Hz\r\n");
+//	}
+//	else 
+//	if (1)//(hact == video_1280x720_60Hz.hact ) &&( vact == video_1280x720_60Hz.vact ))
+//	{
+//		VideoFormat = video_1280x720_60Hz_vic;
+//		LT9211_SetVideoTiming(&video_1280x720_60Hz);
+//		printf("1280x720_60Hz\r\n");
+//		
+//		
+//	}
+	if (1)//(hact == video_1280x720_60Hz.hact ) &&( vact == video_1280x720_60Hz.vact ))
 	{
-		 VideoFormat = video_1920x1080_60Hz_vic;
-		 LT9211_SetVideoTiming(&video_1920x1080_60Hz);
-		printf("1920x1080_60Hz\r\n");
+		VideoFormat = video_1024x600_60Hz_vic;
+		LT9211_SetVideoTiming(&video_1024x600_60Hz);
+		printf("1024x600_60Hz\r\n");		
 	}
-	else if ((hact == video_1280x720_60Hz.hact ) &&( vact == video_1280x720_60Hz.vact ))
-	{
-		VideoFormat = video_1280x720_60Hz_vic;
-		LT9211_SetVideoTiming(&video_1280x720_60Hz);
-		printf("1280x720_60Hz\r\n");
-	}
+	
 	else 
 	{
 	   VideoFormat = video_none;
@@ -281,7 +296,7 @@ void LT9211_MipiRxPll(void)
   	/* dessc pll */
 		HDMI_WriteI2C_Byte(0xff,0x82);
 		HDMI_WriteI2C_Byte(0x2d,0x48);
-    HDMI_WriteI2C_Byte(0x35,PIXCLK_88M_176M); /*0x82*/
+    HDMI_WriteI2C_Byte(0x35,PIXCLK_44M_88M); /*0x82*/  // PIXCLK_44M_88M
 
 		
 }
@@ -498,13 +513,13 @@ void LT9211_ClockCheckDebug(void)
 {
 
 	uint32_t fm_value;
-  HDMI_WriteI2C_Byte(0xff,0x86);
+	HDMI_WriteI2C_Byte(0xff,0x86);
 	HDMI_WriteI2C_Byte(0x00,0x01);
 	//Timer0_Delay1ms(300);
 	Delay1ms(300);
     fm_value = 0;
 	fm_value = (HDMI_ReadI2C_Byte(0x08) &(0x0f));
-  fm_value = (fm_value<<8) ;
+	fm_value = (fm_value<<8) ;
 	fm_value = fm_value + HDMI_ReadI2C_Byte(0x09);
 	fm_value = (fm_value<<8) ;
 	fm_value = fm_value + HDMI_ReadI2C_Byte(0x0a);
@@ -561,7 +576,7 @@ void LT9211_VideoCheckDebug(void)
 
 	printf("\r\nsync_polarity = %x", sync_polarity);
 
-  printf("\r\nhfp, hs, hbp, hact, htotal = %u %u %u %u %u\n",hfp,hs,hbp,hact,htotal);
+	printf("\r\nhfp, hs, hbp, hact, htotal = %u %u %u %u %u\n",hfp,hs,hbp,hact,htotal);
 //	printdec_u32(hfp);
 //	printdec_u32(hs);
 //	printdec_u32(hbp);
@@ -693,21 +708,21 @@ void LT9211_Patten_debug_M2LVDS(void)
 	LT9211_ChipID();
 	LT9211_SystemInt();
   
- 	Timer0_Delay1ms(100);
+ 	Delay1ms(100);
 
-	Timer0_Delay1ms(10);
+	Delay1ms(10);
 	LT9211_Txpll();
 	LT9211_TxPhy();	
 	LT9211_TxDigital();
-	LT9211_Pattern(&video_1920x1080_60Hz);
+	LT9211_Pattern(&video_1024x600_60Hz);   //video_1920x1080_60Hz   video_1024x600_60Hz
 	
 	lt9211_lvds_tx_logic_rst();    //LVDS TX LOGIC RESET 
-  lt9211_lvds_tx_en();           //LVDS TX output enable 
+	lt9211_lvds_tx_en();           //LVDS TX output enable 
 
-  LT9211_ClockCheckDebug();
+	LT9211_ClockCheckDebug();
 	LT9211_VideoCheckDebug();
 
-  while(1);
+	while(1);
  #endif
 }
 

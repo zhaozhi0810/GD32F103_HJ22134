@@ -61,3 +61,31 @@
 51.PB14 - lcd-pwm_7in （tim0-ch1_ON）
 52.PB15 - lcd-pwm （tim0-ch2_ON）
 
+
+
+20220704 v1.0
+1. 串口功能正常
+2.工作灯工作正常
+3.9211 iic配置正常了 （iic均使用模拟方式），但是显示屏白屏
+4. 扩展6*6矩阵键盘识别正常（iic接口）。PCA9535使用的是9555的驱动程序。
+5.注意使用的是内部晶振，没有外部晶振。
+
+
+
+20220706 v1.0
+1. 9211 调整到可以正常显示了，但是横屏需要改为竖屏
+2. sharp_lq050w1lc1b屏的dts设置保存（来源于之前的omap的设置）
+clock-frequency = <56480000>;
+hactive = <1024>;
+hfront-porch = <128>;
+hsync-len = <32>;
+hback-porch = <128>;
+ vactive = <600>;
+vfront-porch = <16>;
+ vsync-len = <4>;
+ vback-porch = <16>;				 
+hsync-active = <0>;
+ vsync-active = <0>;
+ de-active = <0>;
+ pixelclk-active = <0>;
+3.面板的led部分进行了初步调试，其中A3引脚一直为高电平，导致一些灯不可控。地址为32的时候，为对全部灯的控制。

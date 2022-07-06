@@ -20,7 +20,7 @@ typedef enum LT9211_OUTPUTMODE_ENUM
     OUTPUT_YCbCr422_16BIT
 }e_lt9211_outmode_t;
 
-#define LT9211_OutPutModde  OUTPUT_LVDS_2_PORT
+#define LT9211_OutPutModde  OUTPUT_LVDS_1_PORT
 
 typedef enum VIDEO_INPUTMODE_ENUM
 {

@@ -54,5 +54,6 @@ extern const char* g_build_time_str;
 #include "lt9211.h"
 #include "matrix_keys.h"
 #include "nca9555.h"     //沿用之前的项目中的。
+#include "key_light.h"   //按键灯的控制
 #endif
 

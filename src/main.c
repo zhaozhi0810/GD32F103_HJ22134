@@ -89,6 +89,7 @@ static void BoardInit(void)
 	
 	// 11.led初始化
 	Led_Show_Work_init();
+	key_light_leds_init();
 	
 	//12. 电压电流，温度，iic的初始化
 //	Vol_Temp_Api_Init();
@@ -98,15 +99,19 @@ static void BoardInit(void)
 			
 	//14. 启动系统，默认上电时是启动系统的。
 //	Enable_Cpu_Poweron();
-	
+
+
+	key_light_allleds_control(SET);
+//	Delay1ms(5000);
 	// LT9211 开始工作
-//	LT9211_Config();
-	
-	
+	LT9211_Config();
+		
 	//15. 启动单片机内部看门狗
 //	iwdog_init();
-	Delay1ms(5);
+//	Delay1ms(5);
 	Wxen_Control_Enable();    //1.1v wx1860使能
+
+	key_light_allleds_control(RESET);
 }
 
 
@@ -134,6 +139,15 @@ int main(void)
 
 	printf("%s\n\r", g_build_time_str);
 	printf("BoardInit done! 2022-07-01\n\r");
+	
+//	Delay1ms(2000);
+//	for(i=0;i<32;i++)
+//	{
+//		printf("i = %d\n\r", i);
+//		key_light_leds_control(i,SET);
+//		Delay1ms(2000);
+//	}
+
 	
 	while(1)
 	{

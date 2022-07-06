@@ -452,6 +452,11 @@
               <FileType>1</FileType>
               <FilePath>.\src\Nca9555.c</FilePath>
             </File>
+            <File>
+              <FileName>key_light.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\key_light.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
