@@ -29,7 +29,7 @@ typedef enum VIDEO_INPUTMODE_ENUM
     INPUT_YCbCr422_16BIT  =3
 }Video_Input_Mode_TypeDef;
 
-#define Video_Input_Mode  INPUT_RGB888
+#define Video_Input_Mode  INPUT_YCbCr444
 
 
 //#define lvds_format_JEIDA

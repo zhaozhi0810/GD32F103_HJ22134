@@ -296,9 +296,7 @@ void LT9211_MipiRxPll(void)
   	/* dessc pll */
 		HDMI_WriteI2C_Byte(0xff,0x82);
 		HDMI_WriteI2C_Byte(0x2d,0x48);
-    HDMI_WriteI2C_Byte(0x35,PIXCLK_44M_88M); /*0x82*/  // PIXCLK_44M_88M
-
-		
+    HDMI_WriteI2C_Byte(0x35,PIXCLK_44M_88M); /*0x82*/  // PIXCLK_44M_88M		
 }
 
 
@@ -471,6 +469,8 @@ void LT9211_TxPhy(void)
 	
 }
 
+//#define lvds_format_JEIDA
+
 
 void LT9211_TxDigital(void)
 { 
@@ -478,7 +478,7 @@ void LT9211_TxDigital(void)
 	{
 		printf("\rLT9211 set to OUTPUT_LVDS");
 		HDMI_WriteI2C_Byte(0xff,0x85); /* lvds tx controller */
-		HDMI_WriteI2C_Byte(0x59,0x50); 	//bit4-LVDSTX Display color depth set 1-8bit, 0-6bit; 
+		HDMI_WriteI2C_Byte(0x59,0x40); 	//bit4-LVDSTX Display color depth set 1-8bit, 0-6bit; 
 		HDMI_WriteI2C_Byte(0x5a,0xaa); 
 		HDMI_WriteI2C_Byte(0x5b,0xaa);
 		if( LT9211_OutPutModde == OUTPUT_LVDS_2_PORT )

@@ -53,7 +53,7 @@ void lcd_pwm_init(uint8_t degree)
 	}
 	
 #else		
-	
+	//PB15 通道
 	timer_parameter_struct initpara;
 	timer_oc_parameter_struct ocpara;
 	//1. io引脚设置复用功能	
@@ -106,8 +106,10 @@ void lcd_pwm_init(uint8_t degree)
 
 	//*******以下为背光使能控制。	
 	gpio_init(GPIOB, GPIO_MODE_OUT_PP, GPIO_OSPEED_2MHZ, GPIO_PIN_14);
-	gpio_bit_set(GPIOB, GPIO_PIN_5);   //初始化后，输出高电平，默认点亮背光
-		
+	gpio_bit_reset(GPIOB, GPIO_PIN_14);   //初始化后，输出高电平，默认点亮背光
+
+	//禁止背光显示，通电前一段时间，屏幕显示条纹。
+	Disable_LcdLight();
 }
 
 
@@ -165,8 +167,8 @@ void Enable_LcdLight(void)
 	timer_enable(LCD_PWM_TIMER);   //开启定时器
 #endif		
 	Delay1ms(100);
-	gpio_bit_set(GPIOB, GPIO_PIN_5);   //开启背光使能
-	
+	//gpio_bit_set(GPIOB, GPIO_PIN_14);   //开启背光使能
+	Enable_Lcd_Power();
 	MY_PRINTF("Enable_LcdLight\n");
 }
 
@@ -174,7 +176,7 @@ void Enable_LcdLight(void)
 //关闭背光（包括电源，ttl转换，背光，定时器全部关闭）
 void Disable_LcdLight(void)
 {
-	gpio_bit_reset(GPIOB, GPIO_PIN_5);  //关闭背光使能
+//	gpio_bit_reset(GPIOB, GPIO_PIN_14);  //关闭背光使能
 #ifndef LCD_PWM
 	gpio_bit_reset(GPIOB, GPIO_PIN_4);
 #else

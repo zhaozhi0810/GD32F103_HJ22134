@@ -110,8 +110,12 @@ static void BoardInit(void)
 //	iwdog_init();
 //	Delay1ms(5);
 	Wxen_Control_Enable();    //1.1v wx1860使能
-
+//	gpio_bit_reset(GPIOB, GPIO_PIN_5);   //初始化后，输出高电平，默认点亮背光
+	Enable_LcdLight();
+	
 	key_light_allleds_control(RESET);
+	
+	
 }
 
 
