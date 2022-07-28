@@ -45,40 +45,54 @@ static void Com_Debug_Message_Handle1(uint8_t buf)
 	switch(buf)
 	{
 		default:   //cmd打印的时候，可能超出了可显示字符的区间
-			printf("ERROR: Command Unknow cmd = 0x%x!!!\n\r",buf);   //不能识别的命令
+			printf("ERROR: Command Unknow cmd = 0x%x!!!\r\n",buf);   //不能识别的命令
 		case '0':
-			printf("%s\n\r",g_build_time_str);  //打印编译的时间
+			printf("%s\r\n",g_build_time_str);  //打印编译的时间
 		break;
 		case '1':
-//			printf("p0v95_vol = %d mv,p1v0_vol  = %d mv, p1v2_vol  = %d mv,p12v_vol = %d mv\n\r",g_p0v95_vol,g_p1v0_vol, g_p1v2_vol,g_p12v_vol);
+			if(g_lcd_pwm < 100)
+			{
+				Lcd_pwm_out(g_lcd_pwm + 10);   //屏幕亮度加10
+				printf("g_lcd_pwm = %d increase \r\n",g_lcd_pwm);
+			}
+			else
+				printf("g_lcd_pwm = 100\r\n");
+//			printf("p0v95_vol = %d mv,p1v0_vol  = %d mv, p1v2_vol  = %d mv,p12v_vol = %d mv\r\n",g_p0v95_vol,g_p1v0_vol, g_p1v2_vol,g_p12v_vol);
 			//打印电流值
-		//	printf("g_p0v95_vol = %d mv,g_p1v0_vol  = %d mv, g_p1v2_vol  = %d mv,g_p12v_vol = %d mv\n\r",g_p0v95_vol,g_p1v0_vol, g_p1v2_vol,g_p12v_vol);
+		//	printf("g_p0v95_vol = %d mv,g_p1v0_vol  = %d mv, g_p1v2_vol  = %d mv,g_p12v_vol = %d mv\r\n",g_p0v95_vol,g_p1v0_vol, g_p1v2_vol,g_p12v_vol);
 			break;
 		case '2':
 			//打印温度值
-//			printf("cpu temp = %d,board temp = %d\n\r",g_cpu_temp>>4,g_board_temp>>4);
+			if(g_lcd_pwm >= 10)
+			{
+				Lcd_pwm_out(g_lcd_pwm - 10);   //屏幕亮度加10
+				printf("g_lcd_pwm = %d decrease \r\n",g_lcd_pwm);
+			}
+			else
+				printf("g_lcd_pwm = 0\r\n");
+//			printf("cpu temp = %d,board temp = %d\r\n",g_cpu_temp>>4,g_board_temp>>4);
 			#ifdef LCD_HEAT_ENABLE		
-			printf("lcd1 temp = %d,lcd2 temp  = %d\n\r",g_lcd_temp[0]>>4,g_lcd_temp[1]>>4);
-			printf("lcd heat %s,fan_pwm = %d\n\r",Get_Lcd_Heat_Status()?"on":"off",g_fan_pwm);
+			printf("lcd1 temp = %d,lcd2 temp  = %d\r\n",g_lcd_temp[0]>>4,g_lcd_temp[1]>>4);
+			printf("lcd heat %s,fan_pwm = %d\r\n",Get_Lcd_Heat_Status()?"on":"off",g_fan_pwm);
 			#endif
 			break;
 		case '3':
-//			printf("lcd Power %s\n\r",Get_Lcd_Power_Status()?"on":"off");  //lcd加电状态
-//			printf("lcd Pd_n status %s\n\r",Get_Lcd_PdN_Status()?"on":"off");  //lcd ttl转换的状态
-//			printf("lcd light pwm = %d\n\r",g_lcd_pwm);   //lcd的亮度pwm值
+//			printf("lcd Power %s\r\n",Get_Lcd_Power_Status()?"on":"off");  //lcd加电状态
+//			printf("lcd Pd_n status %s\r\n",Get_Lcd_PdN_Status()?"on":"off");  //lcd ttl转换的状态
+//			printf("lcd light pwm = %d\r\n",g_lcd_pwm);   //lcd的亮度pwm值
 			break;
 		case '4':
 //			t = Get_Di_4Ttl_Status();   //4路开关量输入DI PB12-PB15
-//			printf("4Di Di1 %s,Di2 %s,Di3 %s,Di4 %s \n\r",t&1?"on":"off",t&2?"on":"off",t&4?"on":"off",t&8?"on":"off");
+//			printf("4Di Di1 %s,Di2 %s,Di3 %s,Di4 %s \r\n",t&1?"on":"off",t&2?"on":"off",t&4?"on":"off",t&8?"on":"off");
 //			t = Get_Optica_Switch_Status();  //4路光开关状态
-//			printf("4 op switch D2_STATE2 %s ,D2_STATE1 %s,D1_STATE1 %s,D1_STATE2 %s \n\r",
+//			printf("4 op switch D2_STATE2 %s ,D2_STATE1 %s,D1_STATE1 %s,D1_STATE2 %s \r\n",
 //								t&1?"on":"off",t&2?"on":"off",t&4?"on":"off",t&8?"on":"off");
 			break;
 		case '5':
-			printf("Watch Dog Status = %s\n\r","off");   //暂时没有开启
+			printf("Watch Dog Status = %s\r\n","off");   //暂时没有开启
 			break;
 		case '6':
-//			printf("Cpu Run Status = %s\n\r",g_Cpu_Run_Status_str[g_cpu_run_status-1]);
+//			printf("Cpu Run Status = %s\r\n",g_Cpu_Run_Status_str[g_cpu_run_status-1]);
 			break;
 	}
 }

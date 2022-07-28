@@ -70,7 +70,7 @@
 4. 扩展6*6矩阵键盘识别正常（iic接口）。PCA9535使用的是9555的驱动程序。
 5.注意使用的是内部晶振，没有外部晶振。
 
-
+startup_gd32f30x_hd.s(36): error: A1163E: Unknown opcode MODULE , expecting opcode or Macro
 
 20220706 v1.0
 1. 9211 调整到可以正常显示了，但是横屏需要改为竖屏

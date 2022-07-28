@@ -111,12 +111,12 @@ uint8_t matrix_keys_row_scan(void)
 		else
 		{
 			return 0x3f;
-		//	printf("ERROR: KEY_ROW_SCAN key_row_dat == 0x3f\n\r");
+		//	printf("ERROR: KEY_ROW_SCAN key_row_dat == 0x3f\r\n");
 		}
 	}
 	else //iic读取失败
 	{
-		printf("ERROR: KEY_ROW_SCAN nca9555_read_inport\n\r");
+		printf("ERROR: KEY_ROW_SCAN nca9555_read_inport\r\n");
 		return 0xff;
 	}
 }
@@ -124,7 +124,13 @@ uint8_t matrix_keys_row_scan(void)
 
 
 
-
+const uint8_t key_t_code[] = {1,7,13,19,25,31, 
+							 2,8,14,20,26,32,
+							 3,9,15,21,27,33,
+							 4,10,16,22,28,34,
+							5,11,17,23,29,35,
+							6,12,18,24,30,36
+};
 
 /***
  *函数名：KEY_SCAN
@@ -133,7 +139,7 @@ uint8_t matrix_keys_row_scan(void)
  */
 char matrix_keys_scan(void)
 {    
-    uint8_t Key_Num=0;            //1-16对应的按键数
+    uint8_t Key_Num=0xff;            //1-16对应的按键数
     uint8_t key_row_num=0;        //行扫描结果记录
     uint8_t i;
 	
@@ -144,7 +150,7 @@ char matrix_keys_scan(void)
 		{
 			if(nca9555_write_outport(NCA9555_IIC_CONTROLER,KEYS_IIC_ADDR,0, key_scan_line[i])) //P0端口输出0
 			{
-				printf("ERROR: KEY_ROW_SCAN nca9555_write_outport i=%d\n\r",i);
+				printf("ERROR: KEY_ROW_SCAN nca9555_write_outport i=%d\r\n",i);
 				continue;  //写入失败，直接往下试试
 				//	return -1;
 			}
@@ -157,29 +163,29 @@ char matrix_keys_scan(void)
 			switch(key_row_num)
 			{
 				case 0x3e:
-					Key_Num = i+1;
+					Key_Num = i;
 					break;
 				case 0x3d:
-					Key_Num = 6+i+1;
+					Key_Num = 6+i;
 					break;
 				case 0x3b:
-					Key_Num = 12+i+1;
+					Key_Num = 12+i;
 					break;
 				case 0x37:
-					Key_Num = 18+i+1;
+					Key_Num = 18+i;
 					break;
 				case 0x2f:
-					Key_Num = 24+i+1;
+					Key_Num = 24+i;
 					break;
 				case 0x1f:	
-					Key_Num = 30+i+1;
+					Key_Num = 30+i;
 					break;
 				default:
-					Key_Num = 0;
+					Key_Num = 37;  //表示同时按下多个键
 					continue;  //继续
 			}
 			//读取到了按键值			
-			if(Key_Num > 0)
+			if(Key_Num > 36)
 			{
 				break;
 			}
@@ -187,7 +193,14 @@ char matrix_keys_scan(void)
 	}
 
 	nca9555_write_outport(NCA9555_IIC_CONTROLER,KEYS_IIC_ADDR,0, 0);	
-	return Key_Num;
+	
+	if(Key_Num > 36)
+	{
+		if(Key_Num == 37)
+			return 37;
+		return 0;
+	}
+	return key_t_code[Key_Num];
 }
 
 
@@ -210,41 +223,42 @@ void task_matrix_keys_scan(void)
 	if(btn_start_scan == 0)
 		btn_start_scan =1;   //开始扫描
 #endif	
-	if(btn_start_scan) //外部（按下和松开都会触发）中断触发后，不为0.
+	if(btn_start_scan ) //外部（按下和松开都会触发）中断触发后，不为0.
 	{		
 		ret = matrix_keys_scan();		
-		if(ret) //有按键被按下
+		if(ret && ret < 37) //有按键被按下
 		{	
-			if(btn_press_num != ret)   //还没有记录该按键值
+			if(btn_press_num == 0)   //还没有记录该按键值
 			{
 				scan_num++;
 				if(scan_num>1)  //至少扫描到两次，用于消抖
 				{					
 					btn_press_num = ret;
-					
+					send_btn_change_to_cpu(btn_press_num,1); //发送按键按下
 					//可以在这个位置上报按键状态
-					printf("task1_btn_scan ret = %d\n\r",ret);					
+					MY_PRINTF("task1_btn_scan ret = %d\r\n",ret);					
 				}
 			}
 		}
-		else  //按键已松开
+		else if(ret==0) //按键已松开
 		{
 			btn_start_scan = 0;
 			if(btn_press_num)
 			{
+				send_btn_change_to_cpu(btn_press_num,0);  //发送按键松开
 				btn_press_num = 0;	  //松开后，按键值为0
 				scan_num = 0;	 //扫描次数清零		
-				printf("release\n\r");
+				MY_PRINTF("release\r\n");
 			}
 			
 #ifdef 	BTNS_USE_INT	
 			exti_interrupt_enable(EXTI_12);   //扫描完毕之后再使能		
 #endif
-			//printf("release\n\r");
+			//printf("release\r\n");
 		}//if(ret)		
 	}
 	//else
-		;//scan_num = 0;     //可以省略吧？？
+		//;//scan_num = 0;     //可以省略吧？？
 }
 //#endif
 

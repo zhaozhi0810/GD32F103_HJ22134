@@ -36,6 +36,8 @@ uint16_t g_task_id;   //Ã¿Ò»¸öÎ»¶ÔÓ¦Ò»¸öÈÎÎñ£¬Îª1±íÊ¾ĞèÒªÆô¶¯ÈÎÎñ£¬ÔÚÈÎÎñÖĞÇåÁã¸
 
 static void BoardInit(void)
 {
+	OePins_Control_Init();   //OE ¿ÉÒÔÓÃÓÚÆÁÄ»Ï¨Ãğ
+	LcdCtrl_Control_Init();  //lcdµçÔ´¿ØÖÆ£¬³õÊ¼»¯ºóÉèÖÃµÍ
 	//0. ÖĞ¶Ï·Ö×é³õÊ¼»¯
 	//NVIC_SetPriorityGrouping(4);  //¾ùÎª4¸öµÈ¼¶
 	nvic_priority_group_set(NVIC_PRIGROUP_PRE2_SUB2);
@@ -62,12 +64,7 @@ static void BoardInit(void)
 	LT9211_Mcu_ControlPort_Init();
 	LT9211_Reset();
 	
-//	LcdHeat_Init();  //Ã»ÓĞ¼ÓÈÈ¹¦ÄÜÊ±£¬Ò²Òª±£Ö¤³õÊ¼»¯ºóÒı½ÅÎªµÍ
-#ifdef LCD_HEAT_ENABLE		
-	//4.18B20³õÊ¼»¯
-	DS18B20_Init(ds18b20_ind1);
-	DS18B20_Init(ds18b20_ind2);
-#endif	
+
 	//5. ¾ØÕó°´¼üÉ¨Ãè³õÊ¼»¯
 	matrix_keys_init();
 	
@@ -80,10 +77,9 @@ static void BoardInit(void)
 	//8. 4Â·diÊäÈëµÄÒı½ÅÅäÖÃ
 //	Di_4Ttl_Pins_Init();
 	
-	//9. lcd¿ØÖÆÒı½Å³õÊ¼»¯
-#ifdef LCD_PWM
+
 	lcd_pwm_init(70);    //ÁÁ¶ÈÄ¬ÈÏÎª70% £¬´ËÊ±ÏÔÊ¾ÆÁ²»¿ªÆô£¡£¡£¡£¡
-#endif		
+			
 	//10. ³õÊ¼»¯Íâ²¿Ó²¼ş¿´ÃÅ¹·£¬Ä¬ÈÏ²»¿ªÆô
 //	Hard_WatchDog_Pins_Init();
 	
@@ -110,12 +106,14 @@ static void BoardInit(void)
 //	iwdog_init();
 //	Delay1ms(5);
 	Wxen_Control_Enable();    //1.1v wx1860Ê¹ÄÜ
-//	gpio_bit_reset(GPIOB, GPIO_PIN_5);   //³õÊ¼»¯ºó£¬Êä³ö¸ßµçÆ½£¬Ä¬ÈÏµãÁÁ±³¹â
-	Enable_LcdLight();
+
+//	LcdCtrl_Enable();   //lcdµçÔ´Í¨µç
+//	Enable_LcdLight();    //¶Ô7´çÆÁµÄ¿ØÖÆĞÅºÅ£¬±³¹âÊ¹ÄÜºÍ±³¹âpwm¿ØÖÆ,
+	//9. lcd¿ØÖÆÒı½Å³õÊ¼»¯
+
+	key_light_allleds_control(RESET);  //Ãæ°åÉÏËùÓĞµÄµÆ¶¼Ï¨Ãğ
 	
-	key_light_allleds_control(RESET);
-	
-	
+	OePins_Output_Hight(3);   //ÆÁÄ»µãÁÁ Í¨¹ıOE3¿ØÖÆµÄcpu·¢³öµÄpwm
 }
 
 
@@ -141,13 +139,13 @@ int main(void)
 	//1. ³õÊ¼»¯
 	BoardInit();
 
-	printf("%s\n\r", g_build_time_str);
-	printf("BoardInit done! 2022-07-01\n\r");
+	printf("%s\r\n", g_build_time_str);
+	printf("BoardInit done! 2022-07-01\r\n");
 	
 //	Delay1ms(2000);
 //	for(i=0;i<32;i++)
 //	{
-//		printf("i = %d\n\r", i);
+//		printf("i = %d\r\n", i);
 //		key_light_leds_control(i,SET);
 //		Delay1ms(2000);
 //	}

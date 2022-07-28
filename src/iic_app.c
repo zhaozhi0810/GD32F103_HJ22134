@@ -42,8 +42,8 @@ uint8_t IicApp_Read_Byte_Cur(iic_index_t index,uint8_t dev_addr,uint8_t *dat,uin
 	if(IIC_Wait_Ack(index)!= 0) 
 	//if(iic_put_devaddr(I2Cx,dev_addr | 1) != 0)   //最低位是1，表示读操作
 	{
-		//printf("i2c  read_byte_cur send dev addr error!\n");
-		DBG_PRINTF("ERROR:IIC_Wait_Ack(index)!= 0 index = %d\n",index);
+		//printf("i2c  read_byte_cur send dev addr error!\r\n");
+		DBG_PRINTF("ERROR:IIC_Wait_Ack(index)!= 0 index = %d\r\n",index);
 		return 2;
 	}
 	
@@ -89,8 +89,8 @@ uint8_t IicApp_Write_Bytes(iic_index_t index,uint8_t dev_addr,uint8_t word_addr,
 	IIC_Send_Byte(index,dev_addr & 0xfe);	    //发器件地址
 	if(IIC_Wait_Ack(index)!= 0) 
 	{
-		//printf("i2c  read_byte_cur send dev addr error!\n");
-		DBG_PRINTF("ERROR: send dev_addr IIC_Wait_Ack(index)!= 0 dev_addr = 0x%x index = %d\n",dev_addr,index);
+		//printf("i2c  read_byte_cur send dev addr error!\r\n");
+		DBG_PRINTF("ERROR: send dev_addr IIC_Wait_Ack(index)!= 0 dev_addr = 0x%x index = %d\r\n",dev_addr,index);
 		IIC_Stop(index);
 		return 2;
 	}
@@ -99,8 +99,8 @@ uint8_t IicApp_Write_Bytes(iic_index_t index,uint8_t dev_addr,uint8_t word_addr,
 	IIC_Send_Byte(index,word_addr);     //发送字节							    
 	if(IIC_Wait_Ack(index))  //如果没有应答，直接退出
 	{
-		//printf("send word addr error!\n");
-		DBG_PRINTF("ERROR: send word_addr IIC_Wait_Ack(index)!= 0 index = %d\n",index);
+		//printf("send word addr error!\r\n");
+		DBG_PRINTF("ERROR: send word_addr IIC_Wait_Ack(index)!= 0 index = %d\r\n",index);
 		IIC_Stop(index); //iic_stop(I2Cx);     //发送停止信号，总线就空闲了
 		return 3;
 	}
@@ -118,8 +118,8 @@ uint8_t IicApp_Write_Bytes(iic_index_t index,uint8_t dev_addr,uint8_t word_addr,
 		if(IIC_Wait_Ack(index)!= 0)  //如果没有应答，直接退出
 		//if(iic_put_byte_data(I2Cx,dat[i]))  //如果没有应答，直接退出
 		{
-			//printf("send data error!\n");
-			DBG_PRINTF("ERROR: send data IIC_Wait_Ack(index)!= 0 i=%d index = %d\n",i,index);
+			//printf("send data error!\r\n");
+			DBG_PRINTF("ERROR: send data IIC_Wait_Ack(index)!= 0 i=%d index = %d\r\n",i,index);
 			IIC_Stop(index); //iic_stop(I2Cx);     //发送停止信号，总线就空闲了
 			return 4;
 		}
@@ -151,11 +151,11 @@ uint8_t IicApp_Read_Bytes(iic_index_t index,uint8_t dev_addr,uint8_t word_addr,u
 	
 	if(ret == 255)	//特殊情况的处理
 	{
-	//	printf("IicApp_Read_Byte_Curret == 255 \n\r");
+	//	printf("IicApp_Read_Byte_Curret == 255 \r\n");
 		return IicApp_Read_Byte_Cur(index,dev_addr,dat,len);
 	}
 	else
-		DBG_PRINTF("ERROR: IicApp_Write_Bytes ret = %d index = %d\n",ret,index);
+		DBG_PRINTF("ERROR: IicApp_Write_Bytes ret = %d index = %d\r\n",ret,index);
 	return ret;   //在这返回
 }
 

@@ -15,8 +15,8 @@
 static Queue_UART_STRUCT g_Queue_Cpu_Recv;   //接收cpu数据队列，用于接收中断
 frame_buf_t g_com_cpu_buf={{0},CPU_UART_CMD_LEN};    //缓存
 
-#define CPU_UART_HEAD1 0xa5
-#define CPU_UART_HEAD2 0x5a
+#define CPU_UART_HEAD1 0xa5    //注意与cpu端保持一致
+//#define CPU_UART_HEAD2 0x5a
 
 
 
@@ -54,64 +54,52 @@ void Com_Cpu_Rne_Int_Handle(void)
 
 
 
-
-
 //应答cpu的设置信息的请求 errcode为0表示成功，其他值为错误码 应小于0x7f
-void AnswerCpu_data(uint8_t cmd)
+void AnswerCpu_data(uint8_t *cmd)
 {
-	uint8_t buf[8] = {0xa5,0x5a};
-	uint8_t dat;
-	buf[2] = cmd;   //用于应答的指示
-	
-	switch(cmd)
+	uint8_t buf[8] = {CPU_UART_HEAD1};    //头部信息
+//	uint8_t dat;
+	buf[1] = cmd[0];   //用于应答的指示
+	buf[2] = 0;   //表示成功，255表示失败
+
+	switch(cmd[0])
 	{
-		case 1:   //电压
-//			buf[3]  = g_power_vol>>8;     //这个电压来自电源给的。g_power_vol,g_power_cur
-//			buf[4]  = g_power_vol;
+		case eMCU_LED_SETON_TYPE: //设置led ON
+			key_light_leds_control(cmd[1],1);
 			break;
-		case 2:
-//			buf[3]  = g_power_cur>>8;     //这个电压来自电源给的。g_power_vol,g_power_cur
-//			buf[4]  = g_power_cur;
+		case eMCU_LED_SETOFF_TYPE: //设置led OFF
+			key_light_leds_control(cmd[1],0);
+		break;
+		case eMCU_LCD_SETONOFF_TYPE:  //设置lcd 打开或者关闭
+			if(cmd[1])
+				Enable_LcdLight();   //打开屏幕
+			else
+				Disable_LcdLight();
 			break;
-		case 3:
-//			dat = Get_Di_4Ttl_Status();
-//			buf[3]  = dat;     //这个电压来自电源给的。g_power_vol,g_power_cur
-//			buf[4]  = dat;
-			break;
-		//case 4:   //LCD亮度增加10		
+		case eMCU_LEDSETALL_TYPE:  //设置所有的led 打开或者关闭
+			if(cmd[1])
+				key_light_leds_control(32,1);   //打开所有的led
+			else
+				key_light_leds_control(32,0);   //关闭所有的led
+		break;
+		case eMCU_LED_STATUS_TYPE:		  //led 状态获取			
+			buf[2] = get_led_status(cmd[1]); //获得的值保存在buf[2]中发回去		
 		//	Lcd_pwm_change(10);
-			
-		//	return;    //正常识别时不应答
-		case 5:  //查询亮度
-//			dat = g_lcd_pwm/5;
-//			buf[3]  = dat;     //这个电压来自电源给的。g_power_vol,g_power_cur
-//			buf[4]  = dat;
-			break;    //
-		case 6:  //查询cpu温度
-//			buf[3]  = g_cpu_temp;     //cpu温度-127~+128，只有整数部分
-//			buf[4]  = g_cpu_temp;
-			break;    //
-		case 7:  //查询主板温度
-//			buf[3]  = g_board_temp;     //cpu温度-127~+128，只有整数部分
-//			buf[4]  = g_board_temp;
-			break;    //
+			break;
+
 		default:
-			if((cmd & 0x60) == 0x60)
-			{
-				dat = cmd&0x1f;
-//				Lcd_pwm_out((dat)*5);   //设置亮度
-				return;
-			}
+			buf[2] = 255;   //表示失败
 			//不可识别指令，返回错误码
-			buf[2] = 0;
-			buf[3]  = cmd;     //这个电压来自电源给的。g_power_vol,g_power_cur
-			buf[4]  = cmd;
-			MY_PRINTF("error: cpu uart send unkown cmd!! cmd = %#x\n",cmd); 
+//			buf[2] = 0;
+//			buf[3]  = cmd;     //这个电压来自电源给的。g_power_vol,g_power_cur
+//			buf[4]  = cmd;
+		//	MY_PRINTF("error: cpu uart send unkown cmd!! cmd = %#x\n",cmd[0]); 
+			DBG_PRINTF("error: cpu uart send unkown cmd!! cmd = %#x\r\n",cmd[0]); 
 			break;
 	}
-	buf[5] = CheckSum_For_Uart(buf,5);    //计算并存储校验和，
-	printf(".");
-	Uart_Tx_String(1, buf, 6);   //从串口1 发送数据
+	buf[3] = CheckSum_For_Uart(buf,3);    //计算并存储校验和，
+	printf(".x");
+	Uart_Tx_String(TOCPU_COM_NUM, buf, 4);   //从串口1 发送数据
 }
 
 
@@ -135,10 +123,10 @@ void Com_Frame_Handle(frame_buf_t* buf, Queue_UART_STRUCT* Queue_buf,message_han
 			QueueUARTDataDele(Queue_buf,buf->com_handle_buf+i+offset) ;  //com_data 空出1个字节，为了兼容之前的校验和算法，及数据解析算法
 		}
 
-		if((buf->com_handle_buf[0] == CPU_UART_HEAD1) && (buf->com_handle_buf[1] == CPU_UART_HEAD2)  &&(0 == Uart_Verify_Data_CheckSum(buf->com_handle_buf,CPU_UART_CMD_LEN)))   //第二参数是数据总长度，包括校验和共7个字节
+		if((buf->com_handle_buf[0] == CPU_UART_HEAD1) /*&& (buf->com_handle_buf[1] == CPU_UART_HEAD2) */ &&(0 == Uart_Verify_Data_CheckSum(buf->com_handle_buf,CPU_UART_CMD_LEN)))   //第二参数是数据总长度，包括校验和共7个字节
 		{
 			//校验和正确。
-			handle(buf->com_handle_buf[2]);   //只要传命令过去就可以了		
+			handle(&buf->com_handle_buf[1]);   //只要传命令过去就可以了		
 		}	
 		else  //校验和不正确，可能是帧有错误。
 		{

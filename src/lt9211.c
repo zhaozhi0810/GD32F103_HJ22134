@@ -576,14 +576,14 @@ void LT9211_VideoCheckDebug(void)
 
 	printf("\r\nsync_polarity = %x", sync_polarity);
 
-	printf("\r\nhfp, hs, hbp, hact, htotal = %u %u %u %u %u\n",hfp,hs,hbp,hact,htotal);
+	printf("\r\nhfp, hs, hbp, hact, htotal = %u %u %u %u %u\r\n",hfp,hs,hbp,hact,htotal);
 //	printdec_u32(hfp);
 //	printdec_u32(hs);
 //	printdec_u32(hbp);
 //	printdec_u32(hact);
 //	printdec_u32(htotal);
 
-	printf("\r\nvfp, vs, vbp, vact, vtotal = %u %u %u %u %u\n",vfp,vs,vbp,vact,vtotal);
+	printf("\r\nvfp, vs, vbp, vact, vtotal = %u %u %u %u %u\r\n",vfp,vs,vbp,vact,vtotal);
 //	printdec_u32(vfp);
 //	printdec_u32(vs);
 //	printdec_u32(vbp);

@@ -74,7 +74,7 @@ void gd_eval_com_init(uint32_t com_id)
 	//5.1 调试串口不再开启空闲中断。
 	if(com_id == TOCPU_COM_NUM)  //给cpu的通信使用缓存
 	{
-	//	usart_interrupt_enable(com, USART_INT_IDLE);    //空闲中断
+		usart_interrupt_enable(com, USART_INT_IDLE);    //空闲中断
 		Com_Cpu_Recive_Buff_Init();   //接收缓存初始化
 	}
 	//6. nvic的配置
@@ -232,59 +232,61 @@ int32_t Uart_Verify_Data_CheckSum(uint8_t *data,uint8_t len)
 
 
 
-//uint8_t checksum(uint8_t *buf, uint8_t len)
-//{
-//	uint8_t sum;
-//	uint8_t i;
+uint8_t checksum(uint8_t *buf, uint8_t len)
+{
+	uint8_t sum;
+	uint8_t i;
 
-//	for(i=0,sum=0; i<len; i++)
-//		sum += buf[i];
+	for(i=0,sum=0; i<len; i++)
+		sum += buf[i];
 
-//	return sum;
-//}
-
-
-
-////校验数据
-//int32_t verify_data(uint8_t *data,uint8_t len)
-//{
-//	uint8_t check;
-//	int32_t ret = -1;
-//	
-//	if(data == NULL)
-//		return -1;
-//	
-//	//读取原数据中的校验值
-//	check = data[len - 1];
-//	
-//	//重新计算校验值
-//	if(check==checksum(data,len - 1))
-//		ret = 0;
-//	
-//	return ret;
-//}
+	return sum;
+}
 
 
 
+//校验数据
+int32_t verify_data(uint8_t *data,uint8_t len)
+{
+	uint8_t check;
+	int32_t ret = -1;
+	
+	if(data == NULL)
+		return -1;
+	
+	//读取原数据中的校验值
+	check = data[len - 1];
+	
+	//重新计算校验值
+	if(check==checksum(data,len - 1))
+		ret = 0;
+	
+	return ret;
+}
 
 
-////发送按键的数据到cpu
-////whichkey 0xe8 - 0xf9
-////status 0 or 1 松开或者按下
-//void send_btn_change_to_cpu(uint8_t whichkey,uint8_t status)
-//{
-//	unsigned char buf[5];  	
-//	
-//	if(!(uart_inited & 2))   //串口没初始化
-//		return ;
-//	
-//	buf[0] = FRAME_HEAD;  //帧头	
-//	buf[1] = whichkey;    //
-//	buf[2] = status;    //
-//	//crc重新计算
-//	buf[3] = buf[0] + buf[1] + buf[2];  //校验和，0,1,2相加.
-//	
-//	Uart_Tx_String(TOCPU_COM_NUM,buf, 4);   //com_frame_t并没有包含数据头，所以加1个字节	
-//}
+
+
+
+//发送按键的数据到cpu
+//whichkey 1 - 36
+//status 0松开 or 1 按下
+void send_btn_change_to_cpu(uint8_t whichkey,uint8_t status)
+{
+	unsigned char buf[5];  	
+	
+	if(!(uart_inited & 2))   //串口没初始化
+	{
+		printf("error: TOCPU_COM not init\n");
+		return ;
+	}
+	buf[0] = FRAME_HEAD;  //帧头	
+	buf[1] = whichkey;    //
+	buf[2] = status;    //
+	//crc重新计算
+	buf[3] = buf[0] + buf[1] + buf[2];  //校验和，0,1,2相加.
+	
+	Uart_Tx_String(TOCPU_COM_NUM,buf, 4);   //com_frame_t并没有包含数据头，所以加1个字节	
+}
 
 

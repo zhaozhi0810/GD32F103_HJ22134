@@ -9,7 +9,7 @@
 
 
 //功能控制宏定义：
-#define LCD_PWM   //lcd亮度控制，使用pwm的方式
+#define LCD_PWM   //lcd亮度控制，使用pwm的方式，主要针对7寸屏的控制，5寸屏不受gd32单片机控制
 //#define LCD_PWM_HEAT   //LCD使用pwm加热，注释该宏表示不使用pwm
 #define BTNS_USE_INT   //按键扫描使用中断方式
 
@@ -28,14 +28,11 @@ extern const char* g_build_time_str;
 #include "systick.h"     //延时函数
 #include "uart.h"        //串口处理
 #include "gpios.h"       //高低电平控制的
-// #include "sm2990.h"      //电压监控及温度读取
-// #ifdef LCD_HEAT_ENABLE
-// #include "ds18b20.h"     //液晶屏温度读取
-// #endif
-// #include "lcdheat_pwm.h"     //lcd加热控制
-#ifdef LCD_PWM
-#include "lcd_pwm.h"     //液晶屏亮度控制
-#endif
+#include "gd32f10x_it.h"      //中断配置
+
+
+#include "lcd_pwm.h"     //液晶屏亮度控制，主要针对7寸屏的控制，5寸屏不受gd32单片机控制
+
 // #include "cpu_run_states.h"  //cpu上电运行状态的监控
 // #include "power_btn.h"    //cpu上电复位，及开机按键处理
 // #include "fan_control.h"   //风扇控制部分
@@ -55,5 +52,8 @@ extern const char* g_build_time_str;
 #include "matrix_keys.h"
 #include "nca9555.h"     //沿用之前的项目中的。
 #include "key_light.h"   //按键灯的控制
+
+#include "flash_record.h"   //内部flash操作
+
 #endif
 

@@ -51,7 +51,7 @@ typedef struct{
 
 
 #define  DEBUG_PRINTF    //用于输出一些出错信息
-//#define  MY_DEBUG        //用于输出一些调试信息，正常使用时不需要
+#define  MY_DEBUG        //用于输出一些调试信息，正常使用时不需要
 
 #ifdef DEBUG_PRINTF
   #define DBG_PRINTF(fmt, args...)  \
@@ -99,4 +99,11 @@ void Uart_Tx_String(uint8_t com_no, uint8_t *str, uint8_t length);
 
 //串口去使能，针对与cpu连接的串口，调试串口不需要实现
 void gd_eval_com_deinit(void);
+
+
+//发送按键的数据到cpu
+//whichkey 1 - 36
+//status 0松开 or 1 按下
+void send_btn_change_to_cpu(uint8_t whichkey,uint8_t status);
+
 #endif

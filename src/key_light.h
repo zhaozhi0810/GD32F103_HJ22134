@@ -16,7 +16,12 @@ void key_light_leds_init(void);
 void key_light_leds_control(uint8_t whichled,uint8_t status);
 
 
+//控制所有的led
 void key_light_allleds_control(uint8_t status);
 
+
+
+//获得某一个灯的状态
+uint8_t get_led_status(uint8_t whichled);
 #endif
 

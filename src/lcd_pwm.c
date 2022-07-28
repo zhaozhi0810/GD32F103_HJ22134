@@ -10,6 +10,9 @@
 	1.pwm控制LCD亮度
 	2.背光电源使能引脚 PB14
 
+
+	//似乎只能控制7寸屏，2022-07-28  对5寸屏无效
+
 */
 
 #include "includes.h"
@@ -21,8 +24,8 @@ uint8_t g_lcd_pwm = 100;
 #define LCD_PWM_PIN GPIO_PIN_15
 #define LCD_PWM_PORT GPIOB
 #define LCD_PWM_PORT_RCU RCU_GPIOB
-#define LCD_PWM_TIMER_RCU  RCU_TIMER2
-#define LCD_PWM_TIMER  TIMER2
+#define LCD_PWM_TIMER_RCU  RCU_TIMER0    //20220714 更正为timer0，示波器已经看到波形，串口调节正常
+#define LCD_PWM_TIMER  TIMER0
 #define LCD_PWM_TIMER_CH TIMER_CH_2
 
 #define LCD_PWM_TIMER_USE_CHN   //使用互补通道？
@@ -34,7 +37,7 @@ uint8_t g_lcd_pwm = 100;
 
 void lcd_pwm_init(uint8_t degree)
 {
-	rcu_periph_clock_enable(LCD_PWM_PORT_RCU);
+	rcu_periph_clock_enable(LCD_PWM_PORT_RCU);   //端口的时钟使能
 #ifndef LCD_PWM	
 	//uint32_t pin;
 	//rcu_periph_clock_enable(RCU_GPIOB);
@@ -73,7 +76,7 @@ void lcd_pwm_init(uint8_t degree)
 	//3. 初始化定时器的数据结构  /* initialize TIMER init parameter struct */
 	timer_struct_para_init(&initpara);
 	initpara.period = PWM_DEGREE_MAX-1;  //重载的数字，频率20kHZ
-	initpara.prescaler = (SystemCoreClock/2/1000000)-1;  //预分频数，得到是1Mhz的脉冲  
+	initpara.prescaler = (SystemCoreClock/1000000)-1;  //预分频数，得到是1Mhz的脉冲  
 		
 	//4. 初始化定时器      /* initialize TIMER counter */
 	timer_init(LCD_PWM_TIMER, &initpara);
@@ -98,10 +101,14 @@ void lcd_pwm_init(uint8_t degree)
 //timer_channel_complementary_output_polarity_config
 	//9. 初始化定时器通道输出使能
 	//timer_channel_output_fast_config(TIMER2, TIMER_CH_0, TIMER_OC_FAST_ENABLE);
-	timer_channel_output_shadow_config(LCD_PWM_TIMER, LCD_PWM_TIMER_CH, TIMER_OC_SHADOW_ENABLE);	  //stm32似乎用的是这个0x8
+	timer_channel_output_shadow_config(LCD_PWM_TIMER, LCD_PWM_TIMER_CH, TIMER_OC_SHADOW_DISABLE);	  //stm32似乎用的是这个0x8
 	//10.初始化，定时器不使能 2022-04-18	
+	
+	
 	/* enable a TIMER */
-	//timer_enable(TIMER2);
+	timer_primary_output_config(TIMER0, ENABLE);
+	timer_auto_reload_shadow_enable(TIMER0);
+//	timer_enable(TIMER0);
 #endif
 
 	//*******以下为背光使能控制。	
@@ -117,12 +124,14 @@ void lcd_pwm_init(uint8_t degree)
 //开启LCD电源
 void Enable_Lcd_Power(void)
 {
+	LcdCtrl_Enable();  //pe15
 	gpio_bit_set(GPIOB, GPIO_PIN_14);
 }
 
 //关闭LCD电源
 void Disable_Lcd_Power(void)
 {
+	LcdCtrl_Disable();  //pe15
 	gpio_bit_reset(GPIOB, GPIO_PIN_14);
 }
 
@@ -160,7 +169,7 @@ void Enable_LcdLight(void)
 	Enable_Lcd_Power();   //lcd电源开启
 	Delay1ms(100);
 #ifndef LCD_PWM
-	gpio_bit_set(GPIOB, GPIO_PIN_4);  //拉高PWM引脚
+	gpio_bit_set(LCD_PWM_PORT, LCD_PWM_PIN);  //拉高PWM引脚
 #else	
 	Lcd_pwm_out(g_lcd_pwm==0?70:g_lcd_pwm);   //设置占空比70
 	Delay1ms(100);
@@ -169,7 +178,7 @@ void Enable_LcdLight(void)
 	Delay1ms(100);
 	//gpio_bit_set(GPIOB, GPIO_PIN_14);   //开启背光使能
 	Enable_Lcd_Power();
-	MY_PRINTF("Enable_LcdLight\n");
+	MY_PRINTF("Enable_LcdLight\r\n");
 }
 
 
@@ -178,7 +187,7 @@ void Disable_LcdLight(void)
 {
 //	gpio_bit_reset(GPIOB, GPIO_PIN_14);  //关闭背光使能
 #ifndef LCD_PWM
-	gpio_bit_reset(GPIOB, GPIO_PIN_4);
+	gpio_bit_reset(LCD_PWM_PORT, LCD_PWM_PIN);
 #else
 	timer_channel_output_pulse_value_config(LCD_PWM_TIMER, LCD_PWM_TIMER_CH, PWM_DEGREE_MAX);   //关闭背光pwm
 	Delay1ms(100);
@@ -188,7 +197,7 @@ void Disable_LcdLight(void)
 //	Disable_Lcd_PdN();     //lvds 转换功能关闭
 	Disable_Lcd_Power();   //lcd电源关闭
 		
-	MY_PRINTF("Disable_LcdLight\n");
+	MY_PRINTF("Disable_LcdLight\r\n");
 }
 
 
@@ -223,11 +232,13 @@ void Lcd_pwm_out(int8_t degree)
 #else
 	if(degree > 0)
 	{
-		gpio_bit_set(GPIOB, GPIO_PIN_4);
+		g_lcd_pwm = 10;   //10比较好处理
+		gpio_bit_set(LCD_PWM_PORT, LCD_PWM_PIN);
 	}
 	else
 	{
-		gpio_bit_reset(GPIOB, GPIO_PIN_4);
+		g_lcd_pwm = 0;
+		gpio_bit_reset(LCD_PWM_PORT, LCD_PWM_PIN);
 	}
 #endif	
 }
