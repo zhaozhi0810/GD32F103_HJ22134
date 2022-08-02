@@ -16,6 +16,8 @@
  */
 #define CMSIS_device_header "gd32f10x.h"
 
+/*  GigaDevice::Device:GD32F10x_StdPeripherals:ADC:2.0.1 */
+#define RTE_DEVICE_STDPERIPHERALS_ADC
 /*  GigaDevice::Device:GD32F10x_StdPeripherals:EXTI:2.0.1 */
 #define RTE_DEVICE_STDPERIPHERALS_EXTI
 /*  GigaDevice::Device:GD32F10x_StdPeripherals:FWDGT:2.0.1 */

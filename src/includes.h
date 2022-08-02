@@ -54,6 +54,6 @@ extern const char* g_build_time_str;
 #include "key_light.h"   //按键灯的控制
 
 #include "flash_record.h"   //内部flash操作
-
+#include "internal_temp.h"   //单片机温度采集
 #endif
 

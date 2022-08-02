@@ -16,7 +16,7 @@
 #define TASK1_TICKS_INTERVAL 10   //任务1，上电按钮开关扫描。
 #define TASK2_TICKS_INTERVAL 20   //任务2 10ms的间隔,矩阵按键扫描
 #define TASK3_TICKS_INTERVAL 10   //任务3，10ms扫描，检测操作系统关机和重启，读io引脚
-#define TASK4_TICKS_INTERVAL 277   //任务4，277ms扫描，温湿度，电压监控读取任务
+#define TASK4_TICKS_INTERVAL 1000   //任务4，1000ms扫描，单片机内部温度读取任务
 #define TASK5_TICKS_INTERVAL 500   //任务5，定时向龙芯cpu汇报任务，暂定500ms
 #define TASK15_TICKS_INTERVAL 533   //任务5，喂狗，暂定533ms
 #define TASK16_TICKS_INTERVAL 1000   //任务16，1s扫描，工作led闪烁任务.2021-12-01 任务删除

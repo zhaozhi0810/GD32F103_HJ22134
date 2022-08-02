@@ -68,14 +68,8 @@ static void BoardInit(void)
 	//5. 矩阵按键扫描初始化
 	matrix_keys_init();
 	
-	//6. cpu运行状态监控引脚初始化
-//	Cpu_Run_Pins_Init();
-	
-	//7.散热风扇初始化
-//	Fan_Control_Init();
-	
-	//8. 4路di输入的引脚配置
-//	Di_4Ttl_Pins_Init();
+	//6. 单片机内部温度采集
+	ADC_Init();
 	
 
 	lcd_pwm_init(70);    //亮度默认为70% ，此时显示屏不开启！！！！
@@ -126,7 +120,7 @@ int main(void)
 	const task_t task[TASK_MAX]={0//Btn_Power_Change_Scan    //任务1，上电按钮扫描								
 							,[1] = task_matrix_keys_scan       		//任务2，无
 						//	,[2] = Task_Check_CPU_Run_Status    //任务3，运行状态检测，关机重启控制，这个优先级可以低一点
-						//	,[3] = Task_Get_Temp_Vol       //任务4，温湿度，电压监控读取任务，2000ms调用一次
+							,[3] = Int_Temp_task      //任务4，单片机ADC温度，1000ms调用一次
 					//		,[4] = Task_ReportTo_Cpu_status  //任务5，定时向cpu汇报，500ms一次 //2022-04-21不再主动发送	
 					//		,[5] = com3_frame_handle    //无需要
 						//	,[14] = iwdog_feed         //最后一个任务喂狗
