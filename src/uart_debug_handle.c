@@ -38,6 +38,22 @@ frame_buf_t g_com_debug_buf={{0},FRAME_LENGHT};    //数据处理缓存
 //	"LS3A_POWER_ENABLE"     //已经通电，但是没有进入PMON的前一段;
 //};
 
+static void  Com_Debug_Print_Help(void)
+{
+	printf("\r\nDebug cmd:\r\n");
+	printf("0. print Program build time\r\n");
+	printf("1. 7 inch lcd PWM increace(5inch lcd has no effect)\r\n");
+	printf("2. 7 inch lcd PWM decreace(5inch lcd has no effect)\r\n");
+	printf("3. reset core board!!\r\n");
+	printf("4. reset LCD & 9211\r\n");
+	printf("5. print Hard Watch Dog Status\r\n");
+	printf("6. nothing to do\r\n");
+	printf("other. print help\r\n");
+}
+
+
+
+
 //这个函数用来处理调试串口接收到的简单的调试命令
 static void Com_Debug_Message_Handle1(uint8_t buf)
 {
@@ -46,50 +62,40 @@ static void Com_Debug_Message_Handle1(uint8_t buf)
 	{
 		default:   //cmd打印的时候，可能超出了可显示字符的区间
 			printf("ERROR: Command Unknow cmd = 0x%x!!!\r\n",buf);   //不能识别的命令
+			Com_Debug_Print_Help();
 		case '0':
 			printf("%s\r\n",g_build_time_str);  //打印编译的时间
+			printf("Author:JC&DaZhi <vx:285408136>\r\n"); 
 		break;
 		case '1':
 			if(g_lcd_pwm < 100)
 			{
 				Lcd_pwm_out(g_lcd_pwm + 10);   //屏幕亮度加10
-				printf("g_lcd_pwm = %d increase \r\n",g_lcd_pwm);
+				printf("increase 7 inch lcd PWM,g_lcd_pwm = %d \r\n",g_lcd_pwm);
 			}
 			else
 				printf("g_lcd_pwm = 100\r\n");
-//			printf("p0v95_vol = %d mv,p1v0_vol  = %d mv, p1v2_vol  = %d mv,p12v_vol = %d mv\r\n",g_p0v95_vol,g_p1v0_vol, g_p1v2_vol,g_p12v_vol);
-			//打印电流值
-		//	printf("g_p0v95_vol = %d mv,g_p1v0_vol  = %d mv, g_p1v2_vol  = %d mv,g_p12v_vol = %d mv\r\n",g_p0v95_vol,g_p1v0_vol, g_p1v2_vol,g_p12v_vol);
 			break;
 		case '2':
 			//打印温度值
 			if(g_lcd_pwm >= 10)
 			{
 				Lcd_pwm_out(g_lcd_pwm - 10);   //屏幕亮度加10
-				printf("g_lcd_pwm = %d decrease \r\n",g_lcd_pwm);
+				printf("decrease 7 inch lcd PWM,g_lcd_pwm = %d \r\n",g_lcd_pwm);
 			}
 			else
 				printf("g_lcd_pwm = 0\r\n");
-//			printf("cpu temp = %d,board temp = %d\r\n",g_cpu_temp>>4,g_board_temp>>4);
-			#ifdef LCD_HEAT_ENABLE		
-			printf("lcd1 temp = %d,lcd2 temp  = %d\r\n",g_lcd_temp[0]>>4,g_lcd_temp[1]>>4);
-			printf("lcd heat %s,fan_pwm = %d\r\n",Get_Lcd_Heat_Status()?"on":"off",g_fan_pwm);
-			#endif
 			break;
 		case '3':
-//			printf("lcd Power %s\r\n",Get_Lcd_Power_Status()?"on":"off");  //lcd加电状态
-//			printf("lcd Pd_n status %s\r\n",Get_Lcd_PdN_Status()?"on":"off");  //lcd ttl转换的状态
-//			printf("lcd light pwm = %d\r\n",g_lcd_pwm);   //lcd的亮度pwm值
+			printf("reset core board!!\r\n");  //lcd加电状态
+			hard_wtd_reset_3399board();
 			break;
 		case '4':
-//			t = Get_Di_4Ttl_Status();   //4路开关量输入DI PB12-PB15
-//			printf("4Di Di1 %s,Di2 %s,Di3 %s,Di4 %s \r\n",t&1?"on":"off",t&2?"on":"off",t&4?"on":"off",t&8?"on":"off");
-//			t = Get_Optica_Switch_Status();  //4路光开关状态
-//			printf("4 op switch D2_STATE2 %s ,D2_STATE1 %s,D1_STATE1 %s,D1_STATE2 %s \r\n",
-//								t&1?"on":"off",t&2?"on":"off",t&4?"on":"off",t&8?"on":"off");
+			printf("reset LCD & 9211\r\n");  //lcd加电状态
+			LT9211_Config();
 			break;
 		case '5':
-			printf("Watch Dog Status = %s\r\n","off");   //暂时没有开启
+			printf("Watch Dog Status = %s\r\n",get_hard_wtd_status()?"on":"off");   //暂时没有开启
 			break;
 		case '6':
 //			printf("Cpu Run Status = %s\r\n",g_Cpu_Run_Status_str[g_cpu_run_status-1]);

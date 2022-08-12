@@ -41,7 +41,7 @@ static struct video_timing video_1024x600_60Hz   ={ 128, 32, 128,1024,  1312, 16
 
 
 
-void LT9211_Reset(void)
+static void LT9211_Reset(void)
 {
 	//复位引脚PE1 
 //   P11 = 0;
@@ -729,7 +729,7 @@ void LT9211_Patten_debug_M2LVDS(void)
 
 static void LT9211_Init()
 { 
-	printf("\r\n LT9211_mipi to TTL");	
+	printf("\r\n LT9211_mipi to TTL\r\n");	
 	LT9211_ChipID();
 	LT9211_SystemInt();
 	
@@ -752,10 +752,14 @@ static void LT9211_Init()
 	LT9211_VideoCheckDebug();
 
 }
-	
+
+
+//通过9211控制lcd复位一次
 void LT9211_Config(void)
 { 
+	lcd_reset_control();   //lcd的复位引脚控制PD8
 	
+	LT9211_Reset();
 #if VIDEO_PATTERN
   
  	LT9211_Patten_debug_M2LVDS();
@@ -765,5 +769,15 @@ void LT9211_Config(void)
 #endif
 	
 }
+
+
+
+//void Lt9211_lcd_reset(void)
+//{	
+//	LT9211_Config();
+//}
+
+
+
 /**********************END OF FILE******************/
 

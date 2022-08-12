@@ -62,8 +62,9 @@ static void BoardInit(void)
 	
 	//3.LT9211 mcu控制端引脚初始化，并控制LT9211复位
 	LT9211_Mcu_ControlPort_Init();
-	LT9211_Reset();
-	
+//	LT9211_Reset();
+	// LT9211 开始工作
+	LT9211_Config();
 
 	//5. 矩阵按键扫描初始化
 	matrix_keys_init();
@@ -75,14 +76,14 @@ static void BoardInit(void)
 	lcd_pwm_init(70);    //亮度默认为70% ，此时显示屏不开启！！！！
 			
 	//10. 初始化外部硬件看门狗，默认不开启
-//	Hard_WatchDog_Pins_Init();
+	hard_wtd_pins_init();
 	
 	// 11.led初始化
 	Led_Show_Work_init();
 	key_light_leds_init();
 	
 	//12. 电压电流，温度，iic的初始化
-//	Vol_Temp_Api_Init();
+	lcd_reset_control_init();  //PD8 lcd复位引脚控制
 		
 	//13. 销毁
 //	Msata_Destroy_Pin_Init();   //默认输出高
@@ -93,8 +94,7 @@ static void BoardInit(void)
 
 	key_light_allleds_control(SET);
 //	Delay1ms(5000);
-	// LT9211 开始工作
-	LT9211_Config();
+	
 		
 	//15. 启动单片机内部看门狗
 //	iwdog_init();
@@ -118,8 +118,8 @@ int main(void)
 {
 	uint8_t i;
 	const task_t task[TASK_MAX]={0//Btn_Power_Change_Scan    //任务1，上电按钮扫描								
-							,[1] = task_matrix_keys_scan       		//任务2，无
-						//	,[2] = Task_Check_CPU_Run_Status    //任务3，运行状态检测，关机重启控制，这个优先级可以低一点
+							,[1] = task_matrix_keys_scan       		//任务2，矩阵键盘扫描
+							,[2] = hard_wtd_feed_task    //任务3，硬件看门狗喂狗任务 100ms
 							,[3] = Int_Temp_task      //任务4，单片机ADC温度，1000ms调用一次
 					//		,[4] = Task_ReportTo_Cpu_status  //任务5，定时向cpu汇报，500ms一次 //2022-04-21不再主动发送	
 					//		,[5] = com3_frame_handle    //无需要

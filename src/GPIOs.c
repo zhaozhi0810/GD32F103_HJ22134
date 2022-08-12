@@ -15,6 +15,31 @@ void Wxen_Control_Init(void)
 }
 
 
+//PD8  lcd-reset ,不知道是高电平复位还是低电平复位
+//先假设低电平复位吧。
+void lcd_reset_control_init(void)
+{
+	//1. 时钟使能
+	rcu_periph_clock_enable(RCU_GPIOD);
+		
+	//2.0 上电控制引脚
+	gpio_init(GPIOD, GPIO_MODE_OUT_PP, GPIO_OSPEED_2MHZ, GPIO_PIN_8);  //控制输出	
+	//2. 初始化后，默认输出高
+	gpio_bit_set(GPIOD, GPIO_PIN_8);	
+}
+
+
+//触发一次lcd的复位信号
+void lcd_reset_control(void)
+{
+	gpio_bit_reset(GPIOD, GPIO_PIN_8);
+	Delay1ms(100);
+	gpio_bit_set(GPIOD, GPIO_PIN_8);
+}
+
+
+
+
 
 //OE引脚的初始化 
 /*

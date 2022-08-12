@@ -23,5 +23,10 @@ void key_light_allleds_control(uint8_t status);
 
 //获得某一个灯的状态
 uint8_t get_led_status(uint8_t whichled);
+
+
+
+//设置led的亮度 [0-100]
+void set_Led_Pwm(uint8_t pwm);
 #endif
 

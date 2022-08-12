@@ -12,7 +12,7 @@
 #define LCD_PWM   //lcd亮度控制，使用pwm的方式，主要针对7寸屏的控制，5寸屏不受gd32单片机控制
 //#define LCD_PWM_HEAT   //LCD使用pwm加热，注释该宏表示不使用pwm
 #define BTNS_USE_INT   //按键扫描使用中断方式
-
+#define HWTD_USE_INT   //硬件看门狗使用外部中断，下降沿电平触发
 
 
 //允许lcd低温时进行加热处理
@@ -55,5 +55,8 @@ extern const char* g_build_time_str;
 
 #include "flash_record.h"   //内部flash操作
 #include "internal_temp.h"   //单片机温度采集
+#include "hard_wtd.h"     //外部硬件看门狗
+
+
 #endif
 

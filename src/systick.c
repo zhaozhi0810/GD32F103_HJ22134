@@ -121,7 +121,7 @@ void Delay1us(uint32_t nus)
 */
 void Systick_Int_Update(void)
 {
-    static uint16_t times = 0;
+//    static uint16_t times = 0;
 	g_localtime ++;
 	
 	DelayDecrement();
@@ -138,10 +138,10 @@ void Systick_Int_Update(void)
 		g_task_id |= 2;   //任务2，按键扫描
 	}
 
-//	if(g_localtime % TASK15_TICKS_INTERVAL == 23)
-//	{
-//		g_task_id |= 1<<14;   //任务15，单片机看门狗  2022-06-02   800ms超时
-//	}
+	if(g_localtime % TASK3_TICKS_INTERVAL == 23)   //任务3，硬件看门狗喂狗任务 100ms
+	{
+		g_task_id |= 1<<2;   //任务3，//任务3，硬件看门狗喂狗任务 100ms
+	}
 	
 	if(g_localtime % TASK16_TICKS_INTERVAL == 10)
 	{
@@ -153,49 +153,7 @@ void Systick_Int_Update(void)
 	{
 		g_task_id |= 8;   //任务4，200ms扫描，温湿度，电压监控读取任务
 	}
-	
-		
-//	if(g_cpu_run_status > LS3A_POWEROFF)   //非关机模式扫描
-//	{
-//		if(g_cpu_run_status == LS3A_RUN_OS)
-//		{
-////			if(g_localtime % TASK2_TICKS_INTERVAL == 2)
-////			{
-////		//		g_task_id |= 2;   //任务2，18个按键扫描
-////			}
-//					
-//			if(g_localtime % TASK5_TICKS_INTERVAL == 0)
-//			{
-//				g_task_id |= (1<<4);   //任务5，500ms扫描，定时汇报温度等任务
-//			}
-//		}		
-//		//读取温度，为之后的屏幕加热做准备，2021-12-15
-//		if(g_localtime % TASK4_TICKS_INTERVAL == 0)
-//		{
-//			g_task_id |= 8;   //任务4，200ms扫描，温湿度，电压监控读取任务
-//		}		
-//	}
-	
-
-	
-	//开机状态扫描由2022-01-04修改
-//	if(SET == Get_Cpu_Power_Status())   //上电后 2022-01-04增加。v1.2 屏蔽前1.8秒的状态
-//	{		
-//		if(times < 1800)	//屏蔽上电后1.8秒的状态
-//		{				
-//			times++;
-//		}
-//		else if(g_localtime % TASK3_TICKS_INTERVAL == 4)
-//		{
-//			g_task_id |= 4;   //任务3，10ms扫描，检测关机和重启
-//		}		
-//	}
-//	else 
-//		if(times) //屏蔽上电后1.8秒的状态，2022-04-21 。
-//	{
-//		times = 0;
-//	}
-	 
+		 
 }
 
 

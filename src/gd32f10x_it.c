@@ -194,15 +194,16 @@ void USART0_IRQHandler(void)
 
 //中断处理函数声明
 void exint12_handle(void);
+//void exint4_handle(void);
 
 //外部中断4，5，6 用于监控cpu的运行状态
 void EXTI4_IRQHandler(void)
 {
-//	if(exti_interrupt_flag_get(EXTI_4))
-//	{
-//		exti_interrupt_flag_clear(EXTI_4);  //清冲断标志
-//		exint456_handle();
-//	}
+	if(exti_interrupt_flag_get(EXTI_4))
+	{
+		exti_interrupt_flag_clear(EXTI_4);  //清冲断标志
+		exint4_handle();
+	}
 }
 
 

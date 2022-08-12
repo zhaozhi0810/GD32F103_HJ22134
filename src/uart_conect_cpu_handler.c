@@ -86,19 +86,44 @@ void AnswerCpu_data(uint8_t *cmd)
 			buf[2] = get_led_status(cmd[1]); //获得的值保存在buf[2]中发回去		
 		//	Lcd_pwm_change(10);
 			break;
-
+		case eMCU_LEDSETPWM_TYPE:   //设置led的pwm 亮度值
+			set_Led_Pwm(cmd[1]);
+			break;
+		case eMCU_GET_TEMP_TYPE:    //获得单片机的温度
+			buf[2] = get_internal_temp()/100;   //只要整数部分。
+			break;
+		case eMCU_HWTD_SETONOFF_TYPE:  //设置看门狗打开或者关闭
+			if(cmd[1])
+				hard_wtd_enable();   //打开看门狗
+			else
+				hard_wtd_disable();  //关闭
+			break;
+		case eMCU_HWTD_FEED_TYPE:  //设置看门狗打开或者关闭
+			hard_wtd_feed();  //喂狗
+			break;
+		case eMCU_HWTD_SETTIMEOUT_TYPE:  //设置看门狗喂狗时间
+			hard_wtd_set_timeout(cmd[1]);  
+			break;
+		case eMCU_HWTD_GETTIMEOUT_TYPE:  //获取看门狗喂狗时间
+			buf[2] = hard_wtd_get_timeout();  
+			break;
+		case eMCU_RESET_COREBOARD_TYPE:  //复位核心板
+			hard_wtd_reset_3399board();  //
+			break;
+		case eMCU_RESET_LCD_TYPE:  //复位lcd 9211（复位引脚没有连通）
+			LT9211_Config();
+			break;
+		case eMCU_RESET_LFBOARD_TYPE:  //复位底板，好像没有这个功能！！！
+			//nothing to do  20220812
+			break;
 		default:
 			buf[2] = 255;   //表示失败
 			//不可识别指令，返回错误码
-//			buf[2] = 0;
-//			buf[3]  = cmd;     //这个电压来自电源给的。g_power_vol,g_power_cur
-//			buf[4]  = cmd;
-		//	MY_PRINTF("error: cpu uart send unkown cmd!! cmd = %#x\n",cmd[0]); 
 			DBG_PRINTF("error: cpu uart send unkown cmd!! cmd = %#x\r\n",cmd[0]); 
 			break;
 	}
 	buf[3] = CheckSum_For_Uart(buf,3);    //计算并存储校验和，
-	printf(".x");
+//	printf(".x");
 	Uart_Tx_String(TOCPU_COM_NUM, buf, 4);   //从串口1 发送数据
 }
 

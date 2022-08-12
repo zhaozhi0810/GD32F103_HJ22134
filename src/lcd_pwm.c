@@ -222,7 +222,7 @@ void Lcd_pwm_out(int8_t degree)
 		degree = 0;
 		
 	g_lcd_pwm = degree; 
-	MY_PRINTF("Lcd_pwm_out g_lcd_pwm = %d\n",g_lcd_pwm);   //打印一般信息，可以关闭
+	MY_PRINTF("Lcd_pwm_out g_lcd_pwm = %d\r\n",g_lcd_pwm);   //打印一般信息，可以关闭
 	
 	value = (100-degree) * PWM_DEGREE_MAX / 100;
 	/* CH configuration in PWM mode1,duty cycle  */
@@ -277,7 +277,7 @@ void setLcd_pwm_freq(uint16_t freq)
 		//TIM_SetAutoreload(TIM3,freq);   
 		timer_autoreload_value_config(LCD_PWM_TIMER, freq);  //设置频率
 		
-		MY_PRINTF("setLcd_pwm_freq freq = %d\n",freq);
+		MY_PRINTF("setLcd_pwm_freq freq = %d\r\n",freq);
 	}
 #endif	
 }

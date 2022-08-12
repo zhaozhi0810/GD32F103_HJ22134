@@ -35,7 +35,7 @@
 #define DISABLE_KEYBOARD_CS 0
 
 
-static uint8_t led_pwm = 100;
+static uint8_t g_led_pwm = 100;
 static uint32_t leds_status = 0;   //每一位表示一个led的状态，共计32个。1表示亮，0表示灭
 #define PWM_HZ 100   //led的pwm为100HZ，，定时器每10ms进入一次，即为100HZ 如果要改频率得改定时器进入的时间
 
@@ -195,6 +195,18 @@ void key_light_allleds_control(uint8_t status)
 }
 
 
+//设置led的亮度 [0-100]
+void set_Led_Pwm(uint8_t pwm)
+{
+	if(pwm > 100)
+		pwm = 100;
+	
+	g_led_pwm = pwm;
+	
+	MY_PRINTF("set_Led_Pwm  g_led_pwm = %d\r\n",g_led_pwm);
+}
+
+
 
 //对按键面板上 led_PWM 引脚的控制
 static void led_pwm_pin_control(uint8_t status)
@@ -217,7 +229,7 @@ void laser_run_pwm_task(void)
 	if(count <= PWM_HZ)
 	{		
 		//只在某一点控制引脚拉高拉低
-		if(led_pwm == count) //计数值count比设定值led_pwm要大，关闭
+		if(g_led_pwm == count) //计数值count比设定值led_pwm要大，关闭
 		{  //
 			led_pwm_pin_control(0);   //输出低
 		}

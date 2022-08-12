@@ -513,6 +513,11 @@
               <FileType>1</FileType>
               <FilePath>.\src\internal_temp.c</FilePath>
             </File>
+            <File>
+              <FileName>hard_wtd.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\src\hard_wtd.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

@@ -84,18 +84,18 @@ uint16_t ADC_Read(uint8_t channel)
 //ch:通道编号
 //times:获取次数
 //返回值:通道ch的times次转换结果平均值
-static uint16_t getAdcAverage(uint8_t ch,uint8_t times)
-{
-//	uint32_t temp_val=0;
-//	uint8_t t;
-//	for(t=0;t<times;t++)
-//	{
-//		temp_val+=ADC_Read(ch);
-//		Delay1ms(5);
-//		//delay_1ms(5);
-//	}
-//	return temp_val/times;
-} 
+//static uint16_t getAdcAverage(uint8_t ch,uint8_t times)
+//{
+////	uint32_t temp_val=0;
+////	uint8_t t;
+////	for(t=0;t<times;t++)
+////	{
+////		temp_val+=ADC_Read(ch);
+////		Delay1ms(5);
+////		//delay_1ms(5);
+////	}
+////	return temp_val/times;
+//} 
 	 
 
 
@@ -131,6 +131,8 @@ static short Get_Temprate(void)    //获取内部温度传感器温度值
 
 short get_internal_temp(void)
 {
+	MY_PRINTF("get_internal_temp  g_int_temp = %d\r\n",g_int_temp);
+	
 	return g_int_temp;
 }
 
@@ -146,7 +148,7 @@ void Int_Temp_task(void)
 	g_int_temp = Get_Temprate();   //获得温度值(扩大了100倍,单位:℃.)
 	
 	adc_software_trigger_enable(ADC0, ADC_INSERTED_CHANNEL);  /* ADC software trigger enable */
-	MY_PRINTF("g_int_temp = %d\r\n",g_int_temp);
+//	MY_PRINTF("g_int_temp = %d\r\n",g_int_temp);
 	
 }
 
