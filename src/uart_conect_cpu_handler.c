@@ -116,6 +116,9 @@ void AnswerCpu_data(uint8_t *cmd)
 		case eMCU_RESET_LFBOARD_TYPE:  //复位底板，好像没有这个功能！！！
 			//nothing to do  20220812
 			break;
+		case eMCU_MICCTRL_SETONOFF_TYPE:  //设置mic_ctrl引脚的高低电平
+			MicCtl_Control_OutHigh(cmd[1]); //高低电平 非0为高，0为低
+			break;
 		default:
 			buf[2] = 255;   //表示失败
 			//不可识别指令，返回错误码

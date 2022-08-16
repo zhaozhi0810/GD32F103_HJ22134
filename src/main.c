@@ -85,11 +85,8 @@ static void BoardInit(void)
 	//12. 电压电流，温度，iic的初始化
 	lcd_reset_control_init();  //PD8 lcd复位引脚控制
 		
-	//13. 销毁
-//	Msata_Destroy_Pin_Init();   //默认输出高
-			
-	//14. 启动系统，默认上电时是启动系统的。
-//	Enable_Cpu_Poweron();
+	//13.//PD6  MicCtl 	
+	MicCtl_Control_Init();
 
 
 	key_light_allleds_control(SET);

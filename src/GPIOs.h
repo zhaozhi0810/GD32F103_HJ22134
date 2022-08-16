@@ -33,5 +33,14 @@ void LcdCtrl_Disable(void);
 void lcd_reset_control_init(void);
 //触发一次lcd的复位信号
 void lcd_reset_control(void);
+
+
+
+//PD6  MicCtl 输出控制(参数status 非0输出高，0输出低)
+void MicCtl_Control_OutHigh(uint8_t status);
+
+//PD6  MicCtl
+void MicCtl_Control_Init(void);
+
 #endif
 
