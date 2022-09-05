@@ -69,10 +69,10 @@ static void BoardInit(void)
 	//5. 矩阵按键扫描初始化
 	matrix_keys_init();
 	
+	
 	//6. 单片机内部温度采集
 	ADC_Init();
 	
-
 	lcd_pwm_init(70);    //亮度默认为70% ，此时显示屏不开启！！！！
 			
 	//10. 初始化外部硬件看门狗，默认不开启
@@ -105,6 +105,7 @@ static void BoardInit(void)
 	key_light_allleds_control(RESET);  //面板上所有的灯都熄灭
 	
 	OePins_Output_Hight(3);   //屏幕点亮 通过OE3控制的cpu发出的pwm
+		
 }
 
 
@@ -119,7 +120,7 @@ int main(void)
 							,[2] = hard_wtd_feed_task    //任务3，硬件看门狗喂狗任务 100ms
 							,[3] = Int_Temp_task      //任务4，单片机ADC温度，1000ms调用一次
 					//		,[4] = Task_ReportTo_Cpu_status  //任务5，定时向cpu汇报，500ms一次 //2022-04-21不再主动发送	
-					//		,[5] = com3_frame_handle    //无需要
+					//		,[5] = ir_irq9_detect_task    //无需要
 						//	,[14] = iwdog_feed         //最后一个任务喂狗
 					//	,0
 						,[15]=Task_Led_Show_Work       //任务16，最后一个任务，让工作led灯闪烁,1s调用一次
@@ -155,7 +156,9 @@ int main(void)
 					break;    //一次只执行一个任务，任务靠前的优先级高，任务靠后的优先级低
 				}				
 			}
-		}//end for		
+		}//end for	
+
+			
 	}
 }
 

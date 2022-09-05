@@ -47,7 +47,7 @@ static void  Com_Debug_Print_Help(void)
 	printf("3. reset core board!!\r\n");
 	printf("4. reset LCD & 9211\r\n");
 	printf("5. print Hard Watch Dog Status\r\n");
-	printf("6. nothing to do\r\n");
+	printf("6. print Mcu internal_temp\r\n");
 	printf("other. print help\r\n");
 }
 
@@ -98,7 +98,7 @@ static void Com_Debug_Message_Handle1(uint8_t buf)
 			printf("Watch Dog Status = %s\r\n",get_hard_wtd_status()?"on":"off");   //暂时没有开启
 			break;
 		case '6':
-//			printf("Cpu Run Status = %s\r\n",g_Cpu_Run_Status_str[g_cpu_run_status-1]);
+			printf("Mcu internal_temp = %d\r\n",get_internal_temp());
 			break;
 	}
 }

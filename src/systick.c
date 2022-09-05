@@ -153,7 +153,13 @@ void Systick_Int_Update(void)
 	{
 		g_task_id |= 8;   //任务4，200ms扫描，温湿度，电压监控读取任务
 	}
-		 
+	
+
+	//任务xxxxx
+//	if(g_localtime % TASK6_TICKS_INTERVAL == 333)
+//	{
+//		g_task_id |= 1<<5;   //任务6
+//	}
 }
 
 

@@ -8,16 +8,22 @@
 
 #include <string.h>
 
+#define KEY_MAX 36
+
+#define ROW_NUM 6  //行数
+#define COL_NUM 6  //列数
+
+//#define KEY_BYTES_RECORD (KEY_MAX/8+(!!(KEY_MAX%8)))
 
 
 typedef struct btn_info{
-	uint8_t  value;	     //值，0表示松开，1表示按下
-	uint8_t  reportEn;   //1，消抖检测到了，0没有检测到按键
-	uint16_t  pressCnt;     //长按区分
+	uint8_t  value[KEY_MAX];	     //0表示松开，1表示按下
+	uint8_t  reportEn[KEY_MAX];   //1，需要上报，0不需要上报
+	uint16_t  pressCnt[KEY_MAX];     //消抖，长按区分
 }BTN_INFO;
 
 
-#define KEY_MAX 36
+
 
 
 void matrix_keys_init(void);
