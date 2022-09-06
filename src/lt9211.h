@@ -9,6 +9,9 @@
 //#define _Mipi_PortB_   
 
 
+//extern uint8_t cmd_init_9211;  //1 ¸´Î»9211
+
+
 typedef enum LT9211_OUTPUTMODE_ENUM
 {
     OUTPUT_RGB888         =0,

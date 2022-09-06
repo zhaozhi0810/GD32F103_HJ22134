@@ -8,14 +8,17 @@
 ************************************************************/
 #include	"includes.h"
 
-uint16_t hact, vact;
-uint16_t hs, vs;
-uint16_t hbp, vbp;
-uint16_t htotal, vtotal;
-uint16_t hfp, vfp;
-uint8_t VideoFormat=0;
+static uint16_t hact, vact;
+static uint16_t hs, vs;
+static uint16_t hbp, vbp;
+static uint16_t htotal, vtotal;
+static uint16_t hfp, vfp;
+static uint8_t VideoFormat=0;
 
-enum VideoFormat Video_Format;
+//uint8_t cmd_init_9211 = 0;  //1 复位9211
+
+
+//enum VideoFormat Video_Format;
 #define MIPI_LANE_CNT  MIPI_4_LANE // 0: 4lane
 #define MIPI_SETTLE_VALUE 0x05//（0A or 05） 
 #define PCR_M_VALUE 0x17 
@@ -757,17 +760,20 @@ static void LT9211_Init()
 //通过9211控制lcd复位一次
 void LT9211_Config(void)
 { 
-	lcd_reset_control();   //lcd的复位引脚控制PD8
+//	if(cmd_init_9211)
+	{
+		lcd_reset_control();   //lcd的复位引脚控制PD8
 	
-	LT9211_Reset();
+		LT9211_Reset();
 #if VIDEO_PATTERN
   
  	LT9211_Patten_debug_M2LVDS();
 #else
 	
-	LT9211_Init();
+		LT9211_Init();
 #endif
-	
+//		cmd_init_9211 = 0;
+	}
 }
 
 

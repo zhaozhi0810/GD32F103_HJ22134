@@ -111,7 +111,9 @@ void AnswerCpu_data(uint8_t *cmd)
 			hard_wtd_reset_3399board();  //
 			break;
 		case eMCU_RESET_LCD_TYPE:  //复位lcd 9211（复位引脚没有连通）
-			LT9211_Config();
+			//LT9211_Config();
+		//	cmd_init_9211 = 1;   //在main中去复位
+			g_task_id |= 1<<4 ;  //在main中去复位 2022-09-06
 			break;
 		case eMCU_RESET_LFBOARD_TYPE:  //复位底板，好像没有这个功能！！！
 			//nothing to do  20220812

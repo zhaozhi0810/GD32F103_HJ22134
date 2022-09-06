@@ -119,7 +119,7 @@ int main(void)
 							,[1] = task_matrix_keys_scan       		//任务2，矩阵键盘扫描
 							,[2] = hard_wtd_feed_task    //任务3，硬件看门狗喂狗任务 100ms
 							,[3] = Int_Temp_task      //任务4，单片机ADC温度，1000ms调用一次
-					//		,[4] = Task_ReportTo_Cpu_status  //任务5，定时向cpu汇报，500ms一次 //2022-04-21不再主动发送	
+							,[4] = LT9211_Config  //任务5，lcd复位指令单独,不是定时器控制	
 					//		,[5] = ir_irq9_detect_task    //无需要
 						//	,[14] = iwdog_feed         //最后一个任务喂狗
 					//	,0
@@ -158,7 +158,7 @@ int main(void)
 			}
 		}//end for	
 
-			
+		//LT9211_Config();  //lcd复位指令单独	
 	}
 }
 

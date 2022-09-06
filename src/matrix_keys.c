@@ -29,7 +29,7 @@ const uint8_t key_scan_line[] = {0xfe,0xfd,0xfb,0xf7,0xef,0xdf};
 // 6*6 的键盘矩阵，总共有33个按键，按键个数在h文件中定义
 static BTN_INFO g_btns_info;
 
-static uint8_t btn_press_num = 0;  //0表示没有按键被按下，1-36表示对应的按键被按下
+//static uint8_t btn_press_num = 0;  //0表示没有按键被按下，1-36表示对应的按键被按下
 uint8_t btn_start_scan = 0;   //0表示没有按键被按下，1表示按键触发中断
 
 
@@ -89,7 +89,7 @@ void matrix_keys_init(void)
 //外部中断12的处理函数,按键按下和松开都会触发中断！！！！
 void exint12_handle(void)
 {
-	btn_start_scan = 1;
+	btn_start_scan = 5;
 	//并且禁止中断
 	exti_interrupt_disable(EXTI_12);   //扫描完毕之后再使能
 }
@@ -279,7 +279,7 @@ void task_matrix_keys_scan(void)
  */
 char matrix_keys_scan(void)
 {    
-    uint8_t Key_Num=0xff;            //1-16对应的按键数
+//    uint8_t Key_Num=0xff;            //1-16对应的按键数
     uint8_t key_row_num=0;        //行扫描结果记录
     uint8_t i,j;
 	uint8_t index;   //
@@ -386,6 +386,7 @@ char matrix_keys_scan(void)
 				}
 				
 			}
+			btn_start_scan = 0;   //按键不再扫描
 			release_report = 0;
 		}
 	}
@@ -416,14 +417,14 @@ char matrix_keys_scan(void)
 */
 void task_matrix_keys_scan(void)
 {
-	uint8_t i = 0;   //扫描计数，用于消抖
-	uint8_t ret;
+//	uint8_t i = 0;   //扫描计数，用于消抖
+//	uint8_t ret;
 
 #ifndef BTNS_USE_INT	
 	if(btn_start_scan == 0)
 		btn_start_scan =1;   //开始扫描
 #endif	
-//	if(btn_start_scan ) //外部（按下和松开都会触发）中断触发后，不为0.
+	if(btn_start_scan--) //外部（按下和松开都会触发）中断触发后，不为0.
 	{	
 		matrix_keys_scan();
 		
@@ -480,3 +481,4 @@ void task_matrix_keys_scan(void)
 
 
 #endif
+

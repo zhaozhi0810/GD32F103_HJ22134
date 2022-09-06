@@ -143,7 +143,7 @@ static void key_light_send_addr(uint8_t addr)
 void key_light_leds_control(uint8_t whichled,uint8_t status)
 {	
 
-	if(whichled < 33)  //whichled>0 && 
+	if(whichled < 41)  //whichled>0 && 
 	{
 		key_light_send_addr(whichled);		
 	}
@@ -155,7 +155,7 @@ void key_light_leds_control(uint8_t whichled,uint8_t status)
 	{
 		gpio_bit_set(GPIOD, GPIO_PIN_14);
 		
-		if(whichled == 32)  //记录led的状态
+		if(whichled == 40)  //记录led的状态
 			leds_status = 0xffffffff;	 //全部开启
 		else
 			leds_status |= 1<<whichled;
@@ -164,7 +164,7 @@ void key_light_leds_control(uint8_t whichled,uint8_t status)
 	{
 		gpio_bit_reset(GPIOD, GPIO_PIN_14);	
 		
-		if(whichled == 32)  //记录led的状态
+		if(whichled == 40)  //记录led的状态
 			leds_status = 0;	 //全部开启
 		else
 			leds_status &= ~(1<<whichled);
@@ -179,7 +179,7 @@ void key_light_leds_control(uint8_t whichled,uint8_t status)
 //返回255表示错误，0，1表示正确
 uint8_t get_led_status(uint8_t whichled)
 {
-	if(whichled > 31)  //whichled>0 && 
+	if(whichled > 40)  //whichled>0 && 
 	{
 		return 255;		
 	}	
@@ -191,7 +191,7 @@ uint8_t get_led_status(uint8_t whichled)
 //对按键面板上所有led的控制
 void key_light_allleds_control(uint8_t status)
 {
-	key_light_leds_control(32,status);		
+	key_light_leds_control(40,status);		
 }
 
 
