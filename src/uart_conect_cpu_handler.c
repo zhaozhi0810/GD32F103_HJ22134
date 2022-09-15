@@ -78,9 +78,9 @@ void AnswerCpu_data(uint8_t *cmd)
 			break;
 		case eMCU_LEDSETALL_TYPE:  //设置所有的led 打开或者关闭
 			if(cmd[1])
-				key_light_leds_control(32,1);   //打开所有的led
+				key_light_leds_control(40,1);   //打开所有的led
 			else
-				key_light_leds_control(32,0);   //关闭所有的led
+				key_light_leds_control(40,0);   //关闭所有的led
 		break;
 		case eMCU_LED_STATUS_TYPE:		  //led 状态获取			
 			buf[2] = get_led_status(cmd[1]); //获得的值保存在buf[2]中发回去		

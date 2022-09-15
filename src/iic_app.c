@@ -34,7 +34,7 @@ void IicApp_Init(iic_index_t index)
 uint8_t IicApp_Read_Byte_Cur(iic_index_t index,uint8_t dev_addr,uint8_t *dat,uint8_t len)
 {
 	uint8_t i;
-	
+		
 	IIC_Start(index);
 			
 	//2.发送设备地址
@@ -44,6 +44,8 @@ uint8_t IicApp_Read_Byte_Cur(iic_index_t index,uint8_t dev_addr,uint8_t *dat,uin
 	{
 		//printf("i2c  read_byte_cur send dev addr error!\r\n");
 		DBG_PRINTF("ERROR:IIC_Wait_Ack(index)!= 0 index = %d\r\n",index);
+		IIC_Stop(index);//产生一个停止条件
+		
 		return 2;
 	}
 	
@@ -65,7 +67,7 @@ uint8_t IicApp_Read_Byte_Cur(iic_index_t index,uint8_t dev_addr,uint8_t *dat,uin
 	}		
 	//.发送stop时序
 	IIC_Stop(index);//产生一个停止条件
-	
+		
 	return 0;
 }
 
@@ -82,7 +84,7 @@ uint8_t IicApp_Read_Byte_Cur(iic_index_t index,uint8_t dev_addr,uint8_t *dat,uin
 uint8_t IicApp_Write_Bytes(iic_index_t index,uint8_t dev_addr,uint8_t word_addr,const uint8_t *dat,uint8_t len)
 {
 	uint8_t i;
-
+	
 	IIC_Start(index);
 	
 	//2.发送设备地址
@@ -127,7 +129,6 @@ uint8_t IicApp_Write_Bytes(iic_index_t index,uint8_t dev_addr,uint8_t word_addr,
 	
 	//5.结束，结束总线的占用
 	IIC_Stop(index); //iic_stop(I2Cx);
-	
 	return 0;
 }
 
