@@ -13,7 +13,7 @@
 //#define LCD_PWM_HEAT   //LCD使用pwm加热，注释该宏表示不使用pwm
 #define BTNS_USE_INT   //按键扫描使用中断方式
 #define HWTD_USE_INT   //硬件看门狗使用外部中断，下降沿电平触发
-
+#define LEDS_FLASH_TASK  //led键灯的闪烁由单片机控制
 
 //允许lcd低温时进行加热处理
 // #define LCD_HEAT_ENABLE    //开启液晶屏加热功能，注释之后就没有加热功能

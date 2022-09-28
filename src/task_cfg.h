@@ -17,8 +17,9 @@
 #define TASK2_TICKS_INTERVAL 20   //任务2 10ms的间隔,矩阵按键扫描
 #define TASK3_TICKS_INTERVAL 100   //任务3，硬件看门狗喂狗任务 100ms
 #define TASK4_TICKS_INTERVAL 1000   //任务4，1000ms扫描，单片机内部温度读取任务
-#define TASK6_TICKS_INTERVAL 1000   //任务5，xx
-#define TASK15_TICKS_INTERVAL 533   //任务5，喂狗，暂定533ms
+#define TASK5_TICKS_INTERVAL -1  //任务5，不能设置定时器！！！！
+#define TASK6_TICKS_INTERVAL 50   //任务6，led键灯闪烁控制
+#define TASK15_TICKS_INTERVAL 533   //任务15，喂狗，暂定533ms
 #define TASK16_TICKS_INTERVAL 1000   //任务16，1s扫描，工作led闪烁任务.2021-12-01 任务删除
 
 extern uint16_t g_task_id;   //每一个位对应一个任务，为1表示需要启动任务，在任务中清零该位

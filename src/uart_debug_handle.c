@@ -42,8 +42,10 @@ static void  Com_Debug_Print_Help(void)
 {
 	printf("\r\nDebug cmd:\r\n");
 	printf("0. print Program build time\r\n");
-	printf("1. 7 inch lcd PWM increace(5inch lcd has no effect)\r\n");
-	printf("2. 7 inch lcd PWM decreace(5inch lcd has no effect)\r\n");
+	if(Get_Lcd_Type()){  //返回1表示7寸屏，0表示5寸屏
+		printf("1. 7 inch lcd PWM increace(5inch lcd has no effect)\r\n");
+		printf("2. 7 inch lcd PWM decreace(5inch lcd has no effect)\r\n");
+	}
 	printf("3. reset core board!!\r\n");
 	printf("4. reset LCD & 9211\r\n");
 	printf("5. print Hard Watch Dog Status\r\n");
@@ -68,23 +70,27 @@ static void Com_Debug_Message_Handle1(uint8_t buf)
 			printf("Author:JC&DaZhi <vx:285408136>\r\n"); 
 		break;
 		case '1':
-			if(g_lcd_pwm < 100)
-			{
-				Lcd_pwm_out(g_lcd_pwm + 10);   //屏幕亮度加10
-				printf("increase 7 inch lcd PWM,g_lcd_pwm = %d \r\n",g_lcd_pwm);
+			if(Get_Lcd_Type()){  //返回1表示7寸屏，0表示5寸屏
+				if(g_lcd_pwm < 100)
+				{
+					Lcd_pwm_out(g_lcd_pwm + 10);   //屏幕亮度加10
+					printf("increase 7 inch lcd PWM,g_lcd_pwm = %d \r\n",g_lcd_pwm);
+				}
+				else
+					printf("g_lcd_pwm = 100\r\n");
 			}
-			else
-				printf("g_lcd_pwm = 100\r\n");
 			break;
 		case '2':
 			//打印温度值
-			if(g_lcd_pwm >= 10)
-			{
-				Lcd_pwm_out(g_lcd_pwm - 10);   //屏幕亮度加10
-				printf("decrease 7 inch lcd PWM,g_lcd_pwm = %d \r\n",g_lcd_pwm);
+			if(Get_Lcd_Type()){  //返回1表示7寸屏，0表示5寸屏
+				if(g_lcd_pwm >= 10)
+				{
+					Lcd_pwm_out(g_lcd_pwm - 10);   //屏幕亮度加10
+					printf("decrease 7 inch lcd PWM,g_lcd_pwm = %d \r\n",g_lcd_pwm);
+				}
+				else
+					printf("g_lcd_pwm = 0\r\n");
 			}
-			else
-				printf("g_lcd_pwm = 0\r\n");
 			break;
 		case '3':
 			printf("reset core board!!\r\n");  //lcd加电状态

@@ -151,15 +151,15 @@ void Systick_Int_Update(void)
 	//任务4，1000ms扫描，单片机内部温度读取任务2022-08-02
 	if(g_localtime % TASK4_TICKS_INTERVAL == 233)
 	{
-		g_task_id |= 8;   //任务4，200ms扫描，温湿度，电压监控读取任务
+		g_task_id |= 8;   //任务4，1000ms扫描，温湿度，电压监控读取任务
 	}
 	
 
-	//任务xxxxx
-//	if(g_localtime % TASK6_TICKS_INTERVAL == 333)
-//	{
-//		g_task_id |= 1<<5;   //任务6
-//	}
+	//任务6，键灯控制闪烁，50ms
+	if(g_localtime % TASK6_TICKS_INTERVAL == 7)
+	{
+		g_task_id |= 1<<5;   //任务6
+	}
 }
 
 

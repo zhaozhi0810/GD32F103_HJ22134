@@ -33,11 +33,16 @@
 
 #define ENABLE_KEYBOARD_CS 1
 #define DISABLE_KEYBOARD_CS 0
+#define LEDS_NUM_MAX 40   //最大值40，键灯值1-40有效 
 
 
 static uint8_t g_led_pwm = 100;
-static uint32_t leds_status = 0;   //每一位表示一个led的状态，共计32个。1表示亮，0表示灭
+static uint64_t leds_status = 0;   //每一位表示一个led的状态，共计32个。1表示亮，0表示灭
 #define PWM_HZ 100   //led的pwm为100HZ，，定时器每10ms进入一次，即为100HZ 如果要改频率得改定时器进入的时间
+
+#define ARRAY_NUM (LEDS_NUM_MAX/32 + !!(LEDS_NUM_MAX%32))
+static uint32_t g_leds_flash_control[ARRAY_NUM] = {0};  //led的闪烁控制，每一位对应一个led的闪烁，1表示闪烁，0表示不闪烁
+
 
 
 void key_light_leds_init(void)
@@ -132,31 +137,22 @@ static void key_light_send_addr(uint8_t addr)
 
 
 
-
-/*
-	whichled  32表示所有灯
-			0-31 分别对应按键的灯
-			 
-	status   0 表示熄灭
-			 非0表示点亮
-*/
-void key_light_leds_control(uint8_t whichled,uint8_t status)
-{	
-
-	if(whichled < 41)  //whichled>0 && 
+static void key_light_leds_control2(uint8_t whichled,uint8_t status)
+{		
+	if(whichled <= LEDS_NUM_MAX)  //whichled>0 && 
 	{
 		key_light_send_addr(whichled);		
 	}
 	else
 		return;
-	
+
 	key_light_cs(ENABLE_KEYBOARD_CS);
 	if(status)	
 	{
 		gpio_bit_set(GPIOD, GPIO_PIN_14);
 		
 		if(whichled == 40)  //记录led的状态
-			leds_status = 0xffffffff;	 //全部开启
+			leds_status = ~0ULL;	 //全部开启
 		else
 			leds_status |= 1<<whichled;
 	}
@@ -174,12 +170,70 @@ void key_light_leds_control(uint8_t whichled,uint8_t status)
 	key_light_cs(DISABLE_KEYBOARD_CS);
 }
 
+/*
+	whichled  32表示所有灯
+			0-31 分别对应按键的灯
+			 
+	status   0 表示熄灭
+			 非0表示点亮
+*/
+void key_light_leds_control(uint8_t whichled,uint8_t status)
+{		
+	
+	if(whichled > LEDS_NUM_MAX)  //whichled>0 && 	
+		return;
+
+#ifdef LEDS_FLASH_TASK	
+	printf("key_light_leds_control g_leds_flash_control = %#x\r\n",g_leds_flash_control[0]);
+	if(whichled<32)	
+		g_leds_flash_control[0] &= ~(1<<whichled);
+	else if((whichled < 64) && (32 < LEDS_NUM_MAX))
+		g_leds_flash_control[1] &= ~(1<<(whichled-32)); //去除led的闪烁控制
+	printf("2key_light_leds_control g_leds_flash_control = %#x\r\n",g_leds_flash_control[0]);
+#endif	
+	key_light_leds_control2(whichled,status);
+	
+//	if(whichled < LEDS_NUM_MAX)  //whichled>0 && 
+//	{
+//		key_light_send_addr(whichled);		
+//	}
+//	else
+//		return;
+//	
+//	key_light_cs(ENABLE_KEYBOARD_CS);
+//	if(status)	
+//	{
+//		gpio_bit_set(GPIOD, GPIO_PIN_14);
+//		
+//		if(whichled == 40)  //记录led的状态
+//			leds_status = ~0ULL;	 //全部开启
+//		else
+//			leds_status |= 1<<whichled;
+//	}
+//	else
+//	{
+//		gpio_bit_reset(GPIOD, GPIO_PIN_14);	
+//		
+//		if(whichled == 40)  //记录led的状态
+//			leds_status = 0;	 //全部开启
+//		else
+//			leds_status &= ~(1<<whichled);
+//	}
+//	
+//	Delay1ms(1);
+//	key_light_cs(DISABLE_KEYBOARD_CS);
+}
+
+
+
+
+
 
 //获得某一个灯的状态
 //返回255表示错误，0，1表示正确
 uint8_t get_led_status(uint8_t whichled)
 {
-	if(whichled > 40)  //whichled>0 && 
+	if(whichled > 50)  //whichled>0 && 
 	{
 		return 255;		
 	}	
@@ -219,6 +273,36 @@ static void led_pwm_pin_control(uint8_t status)
 
 
 
+#ifdef LEDS_FLASH_TASK
+//增加某个led灯闪烁
+void light_leds_add_flash(uint8_t whichled)
+{
+	printf("light_leds_add_flash whichled = %d\r\n",whichled);
+	if(whichled <= LEDS_NUM_MAX)
+	{
+		printf("light_leds_add_flash whichled = %d\r\n",whichled);
+		if(whichled<32)	
+			g_leds_flash_control[0] |= 1<<whichled;
+		else if((whichled < 64) && (32 < LEDS_NUM_MAX))
+			g_leds_flash_control[1] |= 1<<(whichled-32);
+		
+		//g_leds_flash_control |= 1<<whichled;
+		if(whichled == 40)  //40表示全部的灯
+		{
+			g_leds_flash_control[0] |= ~0;   //全部被控制
+			if(32 < LEDS_NUM_MAX)
+				g_leds_flash_control[1] |= ~0; 
+		}
+	}
+//	else
+//		g_leds_flash_control |= ~0L;   //全部被控制
+}
+#endif
+
+
+
+
+
 //100HZ的频率，10ms进入一次
 void laser_run_pwm_task(void)
 {
@@ -250,6 +334,61 @@ void laser_run_pwm_task(void)
 
 
 
+
+#ifdef LEDS_FLASH_TASK
+//键灯闪烁任务 //50ms进入一次
+void leds_flash_task(void)
+{
+	static uint8_t count = 0;
+	uint8_t i;
+	
+	if(!g_leds_flash_control[0] && !g_leds_flash_control[1])  //没有键灯闪烁控制的需要
+		return;
+	
+	count ++;
+//	printf("g_leds_flash_control[0] = %#x,g_leds_flash_control[1]= %#x\r\n",g_leds_flash_control[0],g_leds_flash_control[1]);
+	if(count == 1)
+	{
+	//	printf("leds_flash_task g_leds_flash_control = %#x\r\n",(int)g_leds_flash_control);
+		for(i=0;i<LEDS_NUM_MAX;i++)
+			if(i<32){
+				if(g_leds_flash_control[0] & (1<<i))
+				{
+				//	printf("g_leds_flash_control[0] = %#x , i = %d\r\n",g_leds_flash_control[0],i);
+					key_light_leds_control2(i,1); //点亮
+				}
+			}
+			else if(i<64)
+			{
+				if(g_leds_flash_control[1] & (1<<(i-32)))
+				{
+					key_light_leds_control2(i,1); //点亮
+				}
+			}
+	}
+	else if(count == 6){
+		for(i=0;i<LEDS_NUM_MAX;i++)
+			if(i<32){
+				if(g_leds_flash_control[0] & (1<<i))
+				{
+				//	printf("g_leds_flash_control[0] = %#x , i = %d\r\n",g_leds_flash_control[0],i);
+					key_light_leds_control2(i,0); //点亮
+				}
+			}
+			else if(i<64)
+			{
+				if(g_leds_flash_control[1] & (1<<(i-32)))
+				{
+					key_light_leds_control2(i,0); //点亮
+				}
+			}
+	}
+	else if(count > 10)
+	{
+		count = 0;
+	}
+}
+#endif
 
 
 

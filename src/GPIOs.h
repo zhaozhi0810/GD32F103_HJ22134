@@ -42,5 +42,9 @@ void MicCtl_Control_OutHigh(uint8_t status);
 //PD6  MicCtl
 void MicCtl_Control_Init(void);
 
+
+//2022-09-21 目前还没有新的底板用于判断，默认返回0（表示5寸屏）
+uint8_t Get_Lcd_Type(void);
+
 #endif
 

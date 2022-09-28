@@ -58,7 +58,7 @@ static void BoardInit(void)
 	SystickConfig();
 	
 	//3.网讯1860的电源1.1v使能控制
-	Wxen_Control_Init();
+//	Wxen_Control_Init();
 	
 	//3.LT9211 mcu控制端引脚初始化，并控制LT9211复位
 	LT9211_Mcu_ControlPort_Init();
@@ -96,7 +96,7 @@ static void BoardInit(void)
 	//15. 启动单片机内部看门狗
 //	iwdog_init();
 //	Delay1ms(5);
-	Wxen_Control_Enable();    //1.1v wx1860使能
+//	Wxen_Control_Enable();    //1.1v wx1860使能,容易引发linux系统故障
 
 //	LcdCtrl_Enable();   //lcd电源通电
 //	Enable_LcdLight();    //对7寸屏的控制信号，背光使能和背光pwm控制,
@@ -120,7 +120,7 @@ int main(void)
 							,[2] = hard_wtd_feed_task    //任务3，硬件看门狗喂狗任务 100ms
 							,[3] = Int_Temp_task      //任务4，单片机ADC温度，1000ms调用一次
 							,[4] = LT9211_Config  //任务5，lcd复位指令单独,不是定时器控制	
-					//		,[5] = ir_irq9_detect_task    //无需要
+							,[5] = leds_flash_task    //任务6，led键灯闪烁控制任务，50ms一次
 						//	,[14] = iwdog_feed         //最后一个任务喂狗
 					//	,0
 						,[15]=Task_Led_Show_Work       //任务16，最后一个任务，让工作led灯闪烁,1s调用一次
