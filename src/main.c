@@ -121,6 +121,7 @@ int main(void)
 							,[3] = Int_Temp_task      //任务4，单片机ADC温度，1000ms调用一次
 							,[4] = LT9211_Config  //任务5，lcd复位指令单独,不是定时器控制	
 							,[5] = leds_flash_task    //任务6，led键灯闪烁控制任务，50ms一次
+						//	,[6] = leds_run_pwm_task
 						//	,[14] = iwdog_feed         //最后一个任务喂狗
 					//	,0
 						,[15]=Task_Led_Show_Work       //任务16，最后一个任务，让工作led灯闪烁,1s调用一次

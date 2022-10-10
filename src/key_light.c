@@ -42,7 +42,13 @@ static uint64_t leds_status = 0;   //Ã¿Ò»Î»±íÊ¾Ò»¸öledµÄ×´Ì¬£¬¹²¼Æ32¸ö¡£1±íÊ¾ÁÁ£
 
 #define ARRAY_NUM (LEDS_NUM_MAX/32 + !!(LEDS_NUM_MAX%32))
 static uint32_t g_leds_flash_control[ARRAY_NUM] = {0};  //ledµÄÉÁË¸¿ØÖÆ£¬Ã¿Ò»Î»¶ÔÓ¦Ò»¸öledµÄÉÁË¸£¬1±íÊ¾ÉÁË¸£¬0±íÊ¾²»ÉÁË¸
+#define LEDS_PWM_HZ 20   //20±íÊ¾ledµÄpwmÎª50HZ£¬¶¨Ê±Æ÷Ã¿1ms½øÈëÒ»´Î
 
+
+
+//2022-09-16 ¸ÄÓÉtimer1 ²úÉúÖĞ¶ÏĞÅºÅ£¬À´ĞŞ¸ÄpwmµÄÊä³öÖµ
+//Ö»ÊÇÓÃÓÚ¼ÆÊ±£¬¾ÍÊ¹ÓÃtim1ÁË£¬
+static void TIM1_Led_Pwm_Init(uint16_t arr,uint16_t psc);
 
 
 void key_light_leds_init(void)
@@ -72,7 +78,8 @@ void key_light_leds_init(void)
 	//2. ³õÊ¼»¯ºó£¬Ä¬ÈÏÊä³ö¸ß
 	gpio_bit_set(GPIOE, GPIO_PIN_8 | GPIO_PIN_9);
 	
-	//PE9 ÊÇpwm¿ØÖÆ£¬ÏÖÔÚÊä³ö¸ß£¬È«ÁÁ
+	//ÓÃÓÚ¿ØÖÆPE9µÄPWM¶¨Ê±Æ÷³õÊ¼»¯£¬²¢Ã»ÓĞ¿ªÆô¶¨Ê±Æ÷£¡£¡
+	TIM1_Led_Pwm_Init(1000-1,(SystemCoreClock/1000000)-1);  //1ms ¼ÆÊ±
 }
 
 
@@ -250,26 +257,26 @@ void key_light_allleds_control(uint8_t status)
 
 
 //ÉèÖÃledµÄÁÁ¶È [0-100]
-void set_Led_Pwm(uint8_t pwm)
-{
-	if(pwm > 100)
-		pwm = 100;
-	
-	g_led_pwm = pwm;
-	
-	MY_PRINTF("set_Led_Pwm  g_led_pwm = %d\r\n",g_led_pwm);
-}
+//void set_Led_Pwm(uint8_t pwm)
+//{
+//	if(pwm > 100)
+//		pwm = 100;
+//	
+//	g_led_pwm = pwm;
+//	
+//	MY_PRINTF("set_Led_Pwm  g_led_pwm = %d\r\n",g_led_pwm);
+//}
 
 
 
-//¶Ô°´¼üÃæ°åÉÏ led_PWM Òı½ÅµÄ¿ØÖÆ
-static void led_pwm_pin_control(uint8_t status)
-{
-	if(status)
-		gpio_bit_set(GPIOE, GPIO_PIN_9);   //Êä³ö¸ßµçÆ½
-	else
-		gpio_bit_reset(GPIOE, GPIO_PIN_9);  //Êä³öµÍµçÆ½
-}
+////¶Ô°´¼üÃæ°åÉÏ led_PWM Òı½ÅµÄ¿ØÖÆ
+//static void led_pwm_pin_control(uint8_t status)
+//{
+//	if(status)
+//		gpio_bit_set(GPIOE, GPIO_PIN_9);   //Êä³ö¸ßµçÆ½
+//	else
+//		gpio_bit_reset(GPIOE, GPIO_PIN_9);  //Êä³öµÍµçÆ½
+//}
 
 
 
@@ -304,31 +311,31 @@ void light_leds_add_flash(uint8_t whichled)
 
 
 //100HZµÄÆµÂÊ£¬10ms½øÈëÒ»´Î
-void laser_run_pwm_task(void)
-{
-	static uint16_t count = 0;
-//	uint8_t i;
-		
-	
-	if(count <= PWM_HZ)
-	{		
-		//Ö»ÔÚÄ³Ò»µã¿ØÖÆÒı½ÅÀ­¸ßÀ­µÍ
-		if(g_led_pwm == count) //¼ÆÊıÖµcount±ÈÉè¶¨Öµled_pwmÒª´ó£¬¹Ø±Õ
-		{  //
-			led_pwm_pin_control(0);   //Êä³öµÍ
-		}
-		else if(0 == count)  //ÔÚ0µãµãÁÁ
-			led_pwm_pin_control(1);  //Êä³ö¸ß
-	}
-//	else
-//	{
-//		count = 0;   //Ò»¸öÖÜÆÚ½áÊø£¬ÖØĞÂ¿ªÊ¼ÏÂÒ»¸öÖÜÆÚ
-//		return;   //¸Õ¸ÕÇåÁã¾Í²»ÓÃÈ¥¼ÓÁË
+//void leds_run_pwm_task(void)
+//{
+//	static uint16_t count = 0;
+////	uint8_t i;
+//		
+//	
+//	if(count <= PWM_HZ)
+//	{		
+//		//Ö»ÔÚÄ³Ò»µã¿ØÖÆÒı½ÅÀ­¸ßÀ­µÍ
+//		if(g_led_pwm == count) //¼ÆÊıÖµcount±ÈÉè¶¨Öµled_pwmÒª´ó£¬¹Ø±Õ
+//		{  //
+//			led_pwm_pin_control(0);   //Êä³öµÍ
+//		}
+//		else if(0 == count)  //ÔÚ0µãµãÁÁ
+//			led_pwm_pin_control(1);  //Êä³ö¸ß
 //	}
-	count++;
-	if(count>PWM_HZ)
-		count = 0;
-}
+////	else
+////	{
+////		count = 0;   //Ò»¸öÖÜÆÚ½áÊø£¬ÖØĞÂ¿ªÊ¼ÏÂÒ»¸öÖÜÆÚ
+////		return;   //¸Õ¸ÕÇåÁã¾Í²»ÓÃÈ¥¼ÓÁË
+////	}
+//	count++;
+//	if(count>PWM_HZ)
+//		count = 0;
+//}
 
 
 
@@ -389,6 +396,113 @@ void leds_flash_task(void)
 	}
 }
 #endif
+
+
+//-----------------------------------------------------------------------------------
+//ledµÄpwm¿ØÖÆ
+
+//¶¨Ê±Æ÷¿ªÆô»òÕß¹Ø±Õ 1Îª¿ªÆô£¬0Îª¹Ø±Õ
+static void Pwm_Timer_Control(uint8_t enable)
+{
+	if(enable)
+	{
+		//Æô¶¯¶¨Ê±Æ÷1
+		timer_enable(TIMER1);
+	}
+	else
+		timer_disable(TIMER1);
+}
+
+
+//¶Ô°´¼üÃæ°åÉÏ led_PWM Òı½ÅµÄ¿ØÖÆ
+static void led_pwm_pin_control(uint8_t status)
+{
+	if(status)
+		gpio_bit_set(GPIOE, GPIO_PIN_9);   //Êä³ö¸ßµçÆ½
+	else
+		gpio_bit_reset(GPIOE, GPIO_PIN_9);  //Êä³öµÍµçÆ½
+}
+
+
+
+//ÉèÖÃledµÄÁÁ¶È [0-100]
+void set_Led_Pwm(uint8_t pwm)
+{
+	if(pwm > 100)
+		pwm = 100;
+	
+	g_led_pwm = pwm/5;  //ÏŞÖÆÔÚ0-20
+
+	if(pwm == 100) //²»ÓÃ¿ª¶¨Ê±Æ÷
+	{
+		Pwm_Timer_Control(RESET);  //¶¨Ê±Æ÷¹Ø±Õ
+		led_pwm_pin_control(SET);  //Òı½ÅÊä³ö¸ß
+	}
+	else if(pwm == 0) //²»ÓÃ¿ª¶¨Ê±Æ÷
+	{
+		Pwm_Timer_Control(RESET);  //¶¨Ê±Æ÷¹Ø±Õ
+		led_pwm_pin_control(RESET);  //Òı½ÅÊä³ö¸ß
+	}
+	else //¿ªÆô¶¨Ê±Æ÷
+	{
+		Pwm_Timer_Control(SET);  //¶¨Ê±Æ÷¿ªÆô
+	}
+	
+	MY_PRINTF("set_Led_Pwm  g_led_pwm = %d\r\n",pwm);
+}
+
+
+
+
+
+
+
+//2022-09-16 ¸ÄÓÉtimer1 ²úÉúÖĞ¶ÏĞÅºÅ£¬À´ĞŞ¸ÄpwmµÄÊä³öÖµ
+//Ö»ÊÇÓÃÓÚ¼ÆÊ±£¬¾ÍÊ¹ÓÃtim1ÁË£¬
+static void TIM1_Led_Pwm_Init(uint16_t arr,uint16_t psc)
+{
+	timer_parameter_struct initpara;
+	//½ÓÊÕ²¿·Ö
+	rcu_periph_clock_enable(RCU_TIMER1);  //¶¨Ê±Æ÷Ä£¿éÊ±ÖÓÊ¹ÄÜ
+
+	//3. ³õÊ¼»¯¶¨Ê±Æ÷µÄÊı¾İ½á¹¹  /* initialize TIMER init parameter struct */
+	timer_struct_para_init(&initpara);
+	initpara.period = arr;  //ÖØÔØµÄÊı×Ö£¬
+	initpara.prescaler = psc;  //Ô¤·ÖÆµÊı£¬µÃµ½ÊÇ1MhzµÄÂö
+	//4. ³õÊ¼»¯¶¨Ê±Æ÷      /* initialize TIMER counter */
+	timer_init(TIMER1, &initpara);
+
+	nvic_irq_enable(TIMER1_IRQn, 7U, 0U);  //ÏÖÔÚÖ»ÓĞÇÀÕ¼ÓÅÏÈ¼¶ÁË¡£
+	timer_interrupt_enable(TIMER1, TIMER_INT_UP);   //¶¨Ê±ÖĞ¶Ï	
+}
+
+
+//¶¨Ê±Æ÷1µÄÖĞ¶Ï´¦Àí£¬Ä¿Ç°ÊÇpwm
+void TIMER1_IRQHandler(void)
+{
+	static uint8_t count = 0;
+	
+	if(timer_interrupt_flag_get(TIMER1,TIMER_INT_FLAG_UP)!=RESET)
+	{		
+		count++;  //1ms ÒÑ¹ıÈ¥			
+		if(count <= LEDS_PWM_HZ)
+		{
+			//Ö»ÔÚÄ³Ò»µã¿ØÖÆÒı½ÅÀ­¸ßÀ­µÍ
+			if(g_led_pwm == count) //¼ÆÊıÖµcount±ÈÉè¶¨Öµled_pwmÒª´ó£¬¹Ø±Õ
+			{  //
+				led_pwm_pin_control(0);   //Êä³öµÍ
+			}
+			else if(1 == count)  //ÔÚ0µãµãÁÁ
+				led_pwm_pin_control(1);  //Êä³ö¸ß
+			}
+		else 
+		{
+			count = 0;   //Ò»¸öÖÜÆÚ½áÊø£¬ÖØĞÂ¿ªÊ¼ÏÂÒ»¸öÖÜÆÚ
+		//	return;   //¸Õ¸ÕÇåÁã¾Í²»ÓÃÈ¥¼ÓÁË
+		}				
+	}
+	timer_interrupt_flag_clear(TIMER1,TIMER_INT_FLAG_UP);	
+}
 
 
 

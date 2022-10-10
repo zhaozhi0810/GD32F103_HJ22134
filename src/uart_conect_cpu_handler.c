@@ -87,6 +87,7 @@ void AnswerCpu_data(uint8_t *cmd)
 		//	Lcd_pwm_change(10);
 			break;
 		case eMCU_LEDSETPWM_TYPE:   //设置led的pwm 亮度值
+		//	printf("eMCU_LEDSETPWM_TYPE cmd1 = %d\r\n",cmd[1]);	
 			set_Led_Pwm(cmd[1]);
 			break;
 		case eMCU_GET_TEMP_TYPE:    //获得单片机的温度

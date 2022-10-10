@@ -31,6 +31,10 @@ uint8_t get_led_status(uint8_t whichled);
 void set_Led_Pwm(uint8_t pwm);
 
 
+//100HZ的频率，10ms进入一次
+void leds_run_pwm_task(void);
+
+
 //需要设置宏 LEDS_FLASH_TASK
 //键灯闪烁任务 //50ms进入一次
 void leds_flash_task(void);

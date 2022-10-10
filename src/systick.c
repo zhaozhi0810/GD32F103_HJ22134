@@ -160,6 +160,13 @@ void Systick_Int_Update(void)
 	{
 		g_task_id |= 1<<5;   //任务6
 	}
+	
+//	//任务7，led亮度模拟pwm输出
+//	if(g_localtime % TASK7_TICKS_INTERVAL == 4)
+//	{
+//		g_task_id |= 1<<6;   //任务7
+//	}
+	
 }
 
 
