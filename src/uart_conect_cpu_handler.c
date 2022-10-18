@@ -109,8 +109,9 @@ void AnswerCpu_data(uint8_t *cmd)
 			buf[2] = hard_wtd_get_timeout();  
 			break;
 		case eMCU_RESET_COREBOARD_TYPE:  //复位核心板
-			hard_wtd_reset_3399board();  //
-			break;
+		//	printf("eMCU_RESET_COREBOARD_TYPE delaytime = %d\r\n",cmd[1]);
+			hard_wtd_reset_3399board(cmd[1]);  // 2022-10-17 增加时间值，默认是1
+		//	return;  //cpu复位，不需要返回数据了。
 		case eMCU_RESET_LCD_TYPE:  //复位lcd 9211（复位引脚没有连通）
 			//LT9211_Config();
 		//	cmd_init_9211 = 1;   //在main中去复位

@@ -14,7 +14,7 @@ uint16_t g_task_id;   //Ã¿Ò»¸öÎ»¶ÔÓ¦Ò»¸öÈÎÎñ£¬Îª1±íÊ¾ĞèÒªÆô¶¯ÈÎÎñ£¬ÔÚÈÎÎñÖĞÇåÁã¸
 
 
 
-////800ms ¿´ÃÅ¹·
+//800ms ¿´ÃÅ¹·
 //static void iwdog_init(void)
 //{
 //	fwdgt_write_enable();

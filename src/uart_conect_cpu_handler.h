@@ -47,6 +47,7 @@ typedef enum
 	eMCU_RESET_LFBOARD_TYPE,    //复位底板，好像没有这个功能！！！
 	eMCU_MICCTRL_SETONOFF_TYPE,  //MICCTRL 引脚的控制
 	eMCU_LEDS_FLASH_TYPE  //,//led闪烁控制
+//	eMCU_LEDS_FLASH_TYPE  //,
 }mcu_data_type;
 
 

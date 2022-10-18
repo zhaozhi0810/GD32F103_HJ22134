@@ -27,7 +27,7 @@ void exint4_handle(void);
 uint8_t get_hard_wtd_status(void);
 
 //3399重启控制
-void hard_wtd_reset_3399board(void);
+void hard_wtd_reset_3399board(uint8_t delaytime);
 
 
 //100ms进入一次就好 SGM706是1.6秒没有喂狗就会复位

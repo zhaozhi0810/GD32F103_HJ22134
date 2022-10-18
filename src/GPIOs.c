@@ -1,6 +1,10 @@
 
 #include "includes.h"
 
+
+
+
+
 //PD7 
 void Wxen_Control_Init(void)
 {
@@ -166,4 +170,8 @@ uint8_t Get_Lcd_Type(void)
 {
 	return 0;   //2022-09-21 目前还没有新的底板用于判断，默认返回0（表示5寸屏）
 }
+
+
+
+
 

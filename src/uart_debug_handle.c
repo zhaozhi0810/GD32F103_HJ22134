@@ -94,7 +94,7 @@ static void Com_Debug_Message_Handle1(uint8_t buf)
 			break;
 		case '3':
 			printf("reset core board!!\r\n");  //lcd加电状态
-			hard_wtd_reset_3399board();
+			hard_wtd_reset_3399board(1);
 			break;
 		case '4':
 			printf("reset LCD & 9211\r\n");  //lcd加电状态
