@@ -37,15 +37,15 @@
 
 
 static uint8_t g_led_pwm = 100;
-static uint64_t leds_status = 0;   //每一位表示一个led的状态，共计64个。1表示亮，0表示灭
+static uint64_t leds_status = 0;   //每一位表示一个led的状态，共计32个。1表示亮，0表示灭
 #define PWM_HZ 100   //led的pwm为100HZ，，定时器每10ms进入一次，即为100HZ 如果要改频率得改定时器进入的时间
 
-//#define ARRAY_NUM (LEDS_NUM_MAX/32 + !!(LEDS_NUM_MAX%32))
+#define ARRAY_NUM (LEDS_NUM_MAX/32 + !!(LEDS_NUM_MAX%32))
 //static uint32_t g_leds_flash_control[ARRAY_NUM] = {0};  //led的闪烁控制，每一位对应一个led的闪烁，1表示闪烁，0表示不闪烁
-static uint8_t g_leds_flash_time[LEDS_NUM_MAX] = {0};  //led 需要闪烁的时间值，0表示500ms，1表示800ms，2表示1s，3表示2s，其他表示不闪烁
-static uint8_t g_leds_flash_time_already[4] = {0};   //led已经闪烁的时间,只记录某种闪烁的时间，不是某一个led
-static uint8_t g_leds_flash_action=0;      // 0-3位，分别表示5，8，10，20的亮灭情况，1表示亮，0表示灭
-static uint8_t g_leds_flash_control = 0;	//0表示没有灯需要闪烁了，非0表示还有灯需要闪烁
+static uint8_t g_leds_flash_time[LEDS_NUM_MAX] = {0};  //led 需要闪烁的时间值，0表示不闪烁，5表示500ms，8表示800ms，10表示1s，20表示2s
+static uint8_t g_leds_flash_time_already[4] = {0};   //led已经闪烁的时间,只记录某种闪烁的时间，不是某一个
+static uint8_t g_leds_flash_action;      // 0-3位，分别表示5，8，10，20的亮灭情况，1表示亮，0表示灭
+static uint8_t g_leds_flash_control;	//0表示没有灯需要闪烁了，非0表示还有灯需要闪烁
 
 
 #define LEDS_PWM_HZ 20   //20表示led的pwm为50HZ，定时器每1ms进入一次
@@ -60,7 +60,6 @@ static void TIM1_Led_Pwm_Init(uint16_t arr,uint16_t psc);
 void key_light_leds_init(void)
 {
 	uint32_t pin;
-	uint8_t i;
 	//都是输出引脚
 	//1. 时钟使能
 	rcu_periph_clock_enable(RCU_GPIOD);
@@ -87,12 +86,6 @@ void key_light_leds_init(void)
 	
 	//用于控制PE9的PWM定时器初始化，并没有开启定时器！！
 	TIM1_Led_Pwm_Init(1000-1,(SystemCoreClock/1000000)-1);  //1ms 计时
-	
-	for(i=0;i<LEDS_NUM_MAX;i++)
-	{
-		g_leds_flash_time[i] = 5;
-	}
-	
 }
 
 
@@ -104,9 +97,9 @@ void key_light_leds_init(void)
 static void key_light_cs(uint8_t status)
 {
 	if(status)
-		gpio_bit_set(GPIOE, GPIO_PIN_8);   //status = 1,表示数据输出
+		gpio_bit_reset(GPIOE, GPIO_PIN_8 );
 	else
-		gpio_bit_reset(GPIOE, GPIO_PIN_8);   //status = 0,表示数据保持，对应cs引脚为0
+		gpio_bit_set(GPIOE, GPIO_PIN_8 );
 }
 
 
@@ -155,24 +148,23 @@ static void key_light_send_addr(uint8_t addr)
 
 }
 
-//这个led控制主要是本文件内部使用，不对外提供控制接口
-//这个接口用于闪烁和常亮灭控制，不会影响闪烁控制
-//whichled: 0-39 ,其中39表示所有led
-//status : 0表示熄灭，非零表示点亮
+
+
 static void key_light_leds_control2(uint8_t whichled,uint8_t status)
 {		
-	if(whichled < LEDS_NUM_MAX)  //whichled>0 && 
+	if(whichled <= LEDS_NUM_MAX)  //whichled>0 && 
 	{
-		key_light_send_addr(whichled+1);		
+		key_light_send_addr(whichled);		
 	}
 	else
 		return;
-	
+
+	key_light_cs(ENABLE_KEYBOARD_CS);
 	if(status)	
 	{
 		gpio_bit_set(GPIOD, GPIO_PIN_14);
 		
-		if(whichled == 39)  //记录led的状态
+		if(whichled == 40)  //记录led的状态
 			leds_status = ~0ULL;	 //全部开启
 		else
 			leds_status |= 1<<whichled;
@@ -181,46 +173,68 @@ static void key_light_leds_control2(uint8_t whichled,uint8_t status)
 	{
 		gpio_bit_reset(GPIOD, GPIO_PIN_14);	
 		
-		if(whichled == 39)  //记录led的状态
+		if(whichled == 40)  //记录led的状态
 			leds_status = 0;	 //全部开启
 		else
 			leds_status &= ~(1<<whichled);
 	}
-	key_light_cs(ENABLE_KEYBOARD_CS);   //1，使能输出
+	
 	Delay1ms(1);
-	key_light_cs(DISABLE_KEYBOARD_CS);  //0，保持输出
+	key_light_cs(DISABLE_KEYBOARD_CS);
 }
 
 /*
-//这个led控制 对外提供控制接口，用于设置灯的亮和灭，同时会停止灯的闪烁控制。
 	whichled  32表示所有灯
-			1-40 分别对应按键的灯
+			0-31 分别对应按键的灯
 			 
 	status   0 表示熄灭
 			 非0表示点亮
 */
 void key_light_leds_control(uint8_t whichled,uint8_t status)
 {		
-	uint8_t i;
-
-	if((whichled < 1) || (whichled > LEDS_NUM_MAX))  //whichled>0 && 	
-		return;
 	
-	whichled -= 1;   //调整为0-39
+	if(whichled > LEDS_NUM_MAX)  //whichled>0 && 	
+		return;
 
-#ifdef LEDS_FLASH_TASK   //这一段主要是取消灯的闪烁控制
-	if(whichled == 39)
-	{
-		for(i=0;i<LEDS_NUM_MAX;i++)
-			g_leds_flash_time[i] = 5;  //全部取消闪烁
-		g_leds_flash_control = 0;  //全部不需要闪烁了。
-	}
-	else
-		g_leds_flash_time[whichled] = 5;  //0-3表示设置闪烁 
+#ifdef LEDS_FLASH_TASK	
+//	printf("key_light_leds_control g_leds_flash_control = %#x\r\n",g_leds_flash_control[0]);
+//	if(whichled<32)	
+//		g_leds_flash_control[0] &= ~(1<<whichled);
+//	else if((whichled < 64) && (32 < LEDS_NUM_MAX))
+//		g_leds_flash_control[1] &= ~(1<<(whichled-32)); //去除led的闪烁控制
+//	printf("2key_light_leds_control g_leds_flash_control = %#x\r\n",g_leds_flash_control[0]);
 #endif	
 	key_light_leds_control2(whichled,status);
 	
-
+//	if(whichled < LEDS_NUM_MAX)  //whichled>0 && 
+//	{
+//		key_light_send_addr(whichled);		
+//	}
+//	else
+//		return;
+//	
+//	key_light_cs(ENABLE_KEYBOARD_CS);
+//	if(status)	
+//	{
+//		gpio_bit_set(GPIOD, GPIO_PIN_14);
+//		
+//		if(whichled == 40)  //记录led的状态
+//			leds_status = ~0ULL;	 //全部开启
+//		else
+//			leds_status |= 1<<whichled;
+//	}
+//	else
+//	{
+//		gpio_bit_reset(GPIOD, GPIO_PIN_14);	
+//		
+//		if(whichled == 40)  //记录led的状态
+//			leds_status = 0;	 //全部开启
+//		else
+//			leds_status &= ~(1<<whichled);
+//	}
+//	
+//	Delay1ms(1);
+//	key_light_cs(DISABLE_KEYBOARD_CS);
 }
 
 
@@ -228,11 +242,11 @@ void key_light_leds_control(uint8_t whichled,uint8_t status)
 
 
 
-//获得某一个灯的状态，whichled ： 0 - 39
+//获得某一个灯的状态
 //返回255表示错误，0，1表示正确
 uint8_t get_led_status(uint8_t whichled)
 {
-	if(whichled >= LEDS_NUM_MAX)  //whichled>0 && 
+	if(whichled > 50)  //whichled>0 && 
 	{
 		return 255;		
 	}	
@@ -244,7 +258,7 @@ uint8_t get_led_status(uint8_t whichled)
 //对按键面板上所有led的控制
 void key_light_allleds_control(uint8_t status)
 {
-	key_light_leds_control(39,status);		
+	key_light_leds_control(40,status);		
 }
 
 
@@ -273,24 +287,24 @@ void key_light_allleds_control(uint8_t status)
 
 
 #ifdef LEDS_FLASH_TASK
-
-static const uint8_t g_const_led_flash_time[4] = {5,8,10,20};
-
 //增加某个led灯闪烁
 /*
 	whichled 高两位表示闪烁的速率
-			 低6位表示哪个灯闪烁，[1-40]  ,实际有效值为0-39，函数中间做调整
+			 低6位表示哪个灯闪烁，[1-40]
 */
+static const uint8_t g_const_led_flash_time[4] = {5,8,10,20};
+
+
 void light_leds_add_flash(uint8_t whichled)
 {
 //	printf("light_leds_add_flash whichled = %d\r\n",whichled);
 	uint8_t flash_freq = whichled >> 6;  
 	uint8_t i;
 	whichled = (whichled & 0x3f) - 1;   //低六位表示某个灯，原来的取值是1-40，调整为0-39
+
 		
 	if(whichled < LEDS_NUM_MAX)
 	{		
-		g_leds_flash_control = 1;   //有灯需要闪烁
 		if(whichled == 39)  //40表示全部的灯
 		{
 //			g_leds_flash_control[0] |= ~0;   //全部被控制
@@ -299,7 +313,7 @@ void light_leds_add_flash(uint8_t whichled)
 //			
 			for(i=0;i<LEDS_NUM_MAX;i++)
 			{
-				g_leds_flash_time[i] = flash_freq;//g_const_led_flash_time[flash_freq];
+				g_leds_flash_time[i] = g_const_led_flash_time[flash_freq];
 			}
 			
 		}
@@ -311,7 +325,7 @@ void light_leds_add_flash(uint8_t whichled)
 //				g_leds_flash_control[1] |= 1<<(whichled-32);
 //			
 //			
-			g_leds_flash_time[whichled] = flash_freq;//g_const_led_flash_time[flash_freq];
+			g_leds_flash_time[whichled] = g_const_led_flash_time[flash_freq];
 			
 		//g_leds_flash_control |= 1<<whichled;
 		}
@@ -358,37 +372,18 @@ void light_leds_add_flash(uint8_t whichled)
 
 
 #ifdef LEDS_FLASH_TASK
-//键灯闪烁任务 //100ms进入一次
+//键灯闪烁任务 //50ms进入一次
 void leds_flash_task(void)
 {
 	uint8_t i;
-	uint8_t c = 0;
-	
-	uint8_t stat[4] = {0};
-	
-	if(!g_leds_flash_control)
-		return;
-	
-	stat[0] = g_leds_flash_action & 1;
-	stat[1] = g_leds_flash_action & 2;   //0 或者非0 
-	stat[2] = g_leds_flash_action & 4;
-	stat[3] = g_leds_flash_action & 8;
-	
+		
 	for(i=0;i<LEDS_NUM_MAX;i++)
 	{
-		if(g_leds_flash_time[i] < 4)  //某个灯需要闪烁
+		if(g_leds_flash_time_already[i] == 0)  //翻转一次
 		{
-			if( g_leds_flash_time_already[g_leds_flash_time[i]] == 0)  //翻转一次
-			{
-				key_light_leds_control2(i,stat[ g_leds_flash_time[i] ]); //点亮 or 熄灭		
-			}
+		
 		}
-		else
-			c ++;   //数一下还有多少灯不需要闪烁
 	}
-	
-	if(c == LEDS_NUM_MAX)
-		g_leds_flash_control = 0;   //没有灯需要闪烁了。
 	
 	for(i=0;i<4;i++)
 	{
@@ -396,7 +391,6 @@ void leds_flash_task(void)
 		if(g_leds_flash_time_already[i] >= g_const_led_flash_time[i])
 		{
 			g_leds_flash_time_already[i] = 0;   //已经闪烁的时间
-			g_leds_flash_action ^= 1<<i;    //状态取反，表示led状态翻转
 		}
 	}
 	

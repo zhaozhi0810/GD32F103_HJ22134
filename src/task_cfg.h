@@ -18,7 +18,7 @@
 #define TASK3_TICKS_INTERVAL 100   //任务3，硬件看门狗喂狗任务 100ms
 #define TASK4_TICKS_INTERVAL 1000   //任务4，1000ms扫描，单片机内部温度读取任务
 #define TASK5_TICKS_INTERVAL -1  //任务5，不能设置定时器！！！！
-#define TASK6_TICKS_INTERVAL 50   //任务6，led键灯闪烁控制
+#define TASK6_TICKS_INTERVAL 100   //任务6，led键灯闪烁控制，100ms
 //#define TASK7_TICKS_INTERVAL 1   //任务7，led亮度pwm设置（模拟pwm）10ms一次
 #define TASK15_TICKS_INTERVAL 533   //任务15，喂狗，暂定533ms
 #define TASK16_TICKS_INTERVAL 1000   //任务16，1s扫描，工作led闪烁任务.2021-12-01 任务删除

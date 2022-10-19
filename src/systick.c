@@ -155,8 +155,8 @@ void Systick_Int_Update(void)
 	}
 	
 
-	//任务6，键灯控制闪烁，50ms
-	if(g_localtime % TASK6_TICKS_INTERVAL == 7)
+	//任务6，键灯控制闪烁，100ms
+	if(g_localtime % TASK6_TICKS_INTERVAL == 77)
 	{
 		g_task_id |= 1<<5;   //任务6
 	}
